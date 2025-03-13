@@ -111,7 +111,6 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 					OpenIssuesCount:     repoDetails.OpenIssuesCount,
 					SinceDate:           repoDetails.SinceDate,
 					CreatedAt:           repoDetails.CreatedAt,
-					// UpdatedAt:           repoDetails.UpdatedAt,
 				},
 				Author: store.Author{
 					Name:  com.Commit.Author.Name,
@@ -120,7 +119,6 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 				// Ideally, use the commit's actual date.
 				Date:      time.Now(),
 				CreatedAt: time.Now(),
-				// UpdatedAt: time.Now(),
 			}
 			commitsToUpsert = append(commitsToUpsert, commit)
 		}

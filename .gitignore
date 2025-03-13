@@ -30,3 +30,4 @@ vendor/
 # build artifacts
 tmp/
 bin/
+.DS_Store

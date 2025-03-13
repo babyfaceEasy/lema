@@ -45,6 +45,19 @@ func (s *RepositoryStore) ByName(ctx context.Context, repoName string) (*Reposit
 	return &repo, nil
 }
 
+func (s *RepositoryStore) GetAll(ctx context.Context) ([]Repository, error) {
+	const query = `SELECT * FROM repositories`
+
+	var repos []Repository
+
+	err := s.db.SelectContext(ctx, &repos, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch repositories from DB : %w", err)
+	}
+
+	return repos, nil
+}
+
 // Exists returns true if a repository with the given name exists.
 func (s *RepositoryStore) Exists(ctx context.Context, name string) (bool, error) {
 	var exists bool
@@ -59,11 +72,11 @@ func (s *RepositoryStore) Exists(ctx context.Context, name string) (bool, error)
 // UpdateSinceDate updates the since_date (and updated_at) for the repository with the given name.
 func (s *RepositoryStore) UpdateSinceDate(ctx context.Context, repositoryName string, newSinceDate time.Time) error {
 	/*
-	query := `
-		UPDATE repositories 
-		SET since_date = $1, updated_at = $2
-		WHERE name = $3
-	`
+		query := `
+			UPDATE repositories
+			SET since_date = $1, updated_at = $2
+			WHERE name = $3
+		`
 	*/
 	query := `
 		UPDATE repositories 
