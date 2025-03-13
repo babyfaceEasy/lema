@@ -26,9 +26,9 @@ type Repository struct {
 	URL                 string    `db:"url" json:"url"`
 	ProgrammingLanguage string    `db:"programming_language" json:"language"`
 	ForksCount          int       `db:"forks_count" json:"forks_count"`
-	StarsCount          int       `db:"stars_count" json:""`
-	WatchersCount       int       `db:"watchers_count" json:""`
-	OpenIssuesCount     int       `db:"open_issues_count" json:""`
+	StarsCount          int       `db:"stars_count" json:"stars_count"`
+	WatchersCount       int       `db:"watchers_count" json:"watchers_count"`
+	OpenIssuesCount     int       `db:"open_issues_count" json:"open_issues_count"`
 	SinceDate           time.Time `db:"since_date" json:"-"`
 	CreatedAt           time.Time `db:"created_at" json:"-"`
 }
