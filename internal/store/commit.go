@@ -1,0 +1,321 @@
+package store
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+)
+
+type CommitStore struct {
+	db *sqlx.DB
+}
+
+func NewCommitStore(db *sql.DB) *CommitStore {
+	return &CommitStore{db: sqlx.NewDb(db, "postgres")}
+}
+
+type Commit struct {
+	ID           int        `db:"id" json:"-"`
+	UID          uuid.UUID  `db:"uid" json:"id,omitempty"`
+	RepositoryID int        `db:"repository_id" json:"-"`
+	AuthorID     int        `db:"author_id" json:"-"`
+	SHA          string     `db:"sha" json:"sha"`
+	URL          string     `db:"url" json:"url"`
+	Message      string     `db:"message" json:"message"`
+	Date         time.Time  `db:"date" json:"date"`
+	CreatedAt    time.Time  `db:"created_at" json:"-"`
+	Repository   Repository `db:"Repository" json:"repository"`
+	Author       Author     `db:"Author" json:"author"`
+}
+
+type AuthorWithCommitCount struct {
+	Author          // Embeds the Author struct.
+	CommitCount int `db:"commit_count" json:"commit_count"`
+}
+
+// getOrCreateRepository checks if a repository exists based on its Name Field.
+// If not found, it inserts a new repository record and returns its ID.
+func (s *CommitStore) getOrCreateRepository(ctx context.Context, tx *sqlx.Tx, repo *Repository) (int, error) {
+	// Ensure repository UID is set.
+	if repo.UID == uuid.Nil {
+		repo.UID = uuid.New()
+	}
+	var id int
+	// Check if the repository exists by its UID.
+	query := `SELECT id FROM repositories WHERE name = $1 LIMIT 1`
+	err := tx.GetContext(ctx, &id, query, repo.Name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Set timestamps if not already set.
+			now := time.Now()
+			if repo.CreatedAt.IsZero() {
+				repo.CreatedAt = now
+			}
+			if repo.SinceDate.IsZero() {
+				repo.SinceDate = now
+			}
+			// Insert a new repository.
+			insertQuery := `
+				INSERT INTO repositories 
+				(uid, name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, since_date, created_at)
+				VALUES 
+				(:uid, :name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :since_date, :created_at)
+				RETURNING id
+			`
+			stmt, err := tx.PrepareNamedContext(ctx, insertQuery)
+			if err != nil {
+				return 0, fmt.Errorf("failed to prepare named statement: %w", err)
+			}
+			defer stmt.Close()
+			err = stmt.Get(&id, repo)
+			if err != nil {
+				return 0, fmt.Errorf("failed to insert repository: %w", err)
+			}
+		} else {
+			return 0, fmt.Errorf("failed to check repository existence: %w", err)
+		}
+	}
+	return id, nil
+}
+
+// getOrCreateAuthor checks if an author exists based on its Name Field.
+// If not found, it inserts a new author record and returns its ID.
+func (s *CommitStore) getOrCreateAuthor(ctx context.Context, tx *sqlx.Tx, author *Author) (int, error) {
+	// Ensure author UID is set.
+	if author.UID == uuid.Nil {
+		author.UID = uuid.New()
+	}
+	var id int
+	// Check if the author exists by UID.
+	query := `SELECT id FROM authors WHERE name = $1 LIMIT 1`
+	err := tx.GetContext(ctx, &id, query, author.Name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Insert a new author.
+			insertQuery := `
+				INSERT INTO authors 
+				(uid, name, email)
+				VALUES 
+				(:uid, :name, :email)
+				RETURNING id
+			`
+			/*
+				err = tx.GetContext(ctx, &id, insertQuery, author)
+				if err != nil {
+					return 0, fmt.Errorf("failed to insert author: %w", err)
+				}
+			*/
+
+			stmt, err := tx.PrepareNamedContext(ctx, insertQuery)
+			if err != nil {
+				return 0, fmt.Errorf("failed to prepare named statement: %w", err)
+			}
+			defer stmt.Close()
+			err = stmt.Get(&id, author)
+			if err != nil {
+				return 0, fmt.Errorf("failed to insert author: %w", err)
+			}
+		} else {
+			return 0, fmt.Errorf("failed to check author existence: %w", err)
+		}
+	}
+	return id, nil
+}
+
+// StoreCommits inserts a list of commits into the database.
+// For each commit, it ensures that the related repository and author exist,
+// then inserts the commit record with the proper foreign keys.
+func (s *CommitStore) StoreCommits(ctx context.Context, commits []Commit) error {
+	// Begin a transaction.
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+
+	commitQuery := `
+		INSERT INTO commits 
+			(uid, repository_id, author_id, url, sha, message, date, created_at)
+		VALUES 
+			(:uid, :repository_id, :author_id, :url, :sha, :message, :date, :created_at)
+	`
+	for _, commit := range commits {
+		// Ensure the repository exists (or is created) and get its ID.
+		repoID, err := s.getOrCreateRepository(ctx, tx, &commit.Repository)
+		if err != nil {
+			_ = tx.Rollback()
+			return fmt.Errorf("processing commit insert repo %v: %w", commit.URL, err)
+		}
+		commit.RepositoryID = repoID
+
+		// Ensure the author exists (or is created) and get its ID.
+		authorID, err := s.getOrCreateAuthor(ctx, tx, &commit.Author)
+		if err != nil {
+			_ = tx.Rollback()
+			return fmt.Errorf("processing commit insert author %v: %w", commit.URL, err)
+		}
+		commit.AuthorID = authorID
+
+		// Set default values if not already set.
+		if commit.UID == uuid.Nil {
+			commit.UID = uuid.New()
+		}
+		now := time.Now()
+		if commit.CreatedAt.IsZero() {
+			commit.CreatedAt = now
+		}
+		/*
+			if commit.UpdatedAt.IsZero() {
+				commit.UpdatedAt = now
+			}
+		*/
+
+		// Insert the commit.
+		_, err = tx.NamedExecContext(ctx, commitQuery, commit)
+		if err != nil {
+			_ = tx.Rollback()
+			return fmt.Errorf("inserting commit %v: %w", commit.URL, err)
+		}
+	}
+
+	// Commit the transaction.
+	return tx.Commit()
+}
+
+// GetCommitsByRepositoryName returns all commits for the repository with the given name.
+// The returned commits will have the Repository and Author fields pre-populated.
+func (s *CommitStore) GetCommitsByRepositoryName(ctx context.Context, repositoryName string) ([]Commit, error) {
+	var commits []Commit
+
+	query := `
+	SELECT 
+		c.id,
+		c.uid,
+		c.repository_id,
+		c.author_id,
+		c.url,
+		c.sha,
+		c.message,
+		c.date,
+		c.created_at,
+		-- c.updated_at,
+		-- Repository fields with "Repository." prefix
+		r.id AS "Repository.id",
+		r.uid AS "Repository.uid",
+		r.name AS "Repository.name",
+		r.description AS "Repository.description",
+		r.url AS "Repository.url",
+		r.programming_language AS "Repository.programming_language",
+		r.forks_count AS "Repository.forks_count",
+		r.stars_count AS "Repository.stars_count",
+		r.watchers_count AS "Repository.watchers_count",
+		r.open_issues_count AS "Repository.open_issues_count",
+		r.created_at AS "Repository.created_at",
+		-- r.updated_at AS "Repository.updated_at",
+		-- Author fields with "Author." prefix
+		a.id AS "Author.id",
+		a.uid AS "Author.uid",
+		a.name AS "Author.name",
+		a.email AS "Author.email"
+	FROM commits c
+	JOIN repositories r ON c.repository_id = r.id
+	JOIN authors a ON c.author_id = a.id
+	WHERE r.name = $1
+	ORDER BY c.date DESC
+	`
+
+	err := s.db.SelectContext(ctx, &commits, query, repositoryName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch commits for repository %s: %w", repositoryName, err)
+	}
+
+	return commits, nil
+}
+
+// GetTopCommitAuthors returns the top N commit authors by commit count.
+func (s *CommitStore) GetTopCommitAuthors(ctx context.Context, limit int) ([]AuthorWithCommitCount, error) {
+	var authors []AuthorWithCommitCount
+
+	query := `
+		SELECT 
+			a.id,
+			a.uid,
+			a.name,
+			a.email,
+			COUNT(c.id) AS commit_count
+		FROM authors a
+		JOIN commits c ON c.author_id = a.id
+		GROUP BY a.id, a.uid, a.name, a.email
+		ORDER BY commit_count DESC
+		LIMIT $1
+	`
+
+	if err := s.db.SelectContext(ctx, &authors, query, limit); err != nil {
+		return nil, fmt.Errorf("failed to fetch top commit authors: %w", err)
+	}
+
+	return authors, nil
+}
+
+// UpsertCommits inserts or updates a slice of commits into the database.
+func (s *CommitStore) UpsertCommits(ctx context.Context, commits []Commit) error {
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+
+	query := `
+		INSERT INTO commits 
+			(uid, repository_id, author_id, sha, url, message, date, created_at)
+		VALUES 
+			(:uid, :repository_id, :author_id, :sha, :url, :message, :date, :created_at)
+		ON CONFLICT (repository_id, sha) DO UPDATE SET 
+			url = EXCLUDED.url,
+			message = EXCLUDED.message,
+			date = EXCLUDED.date
+	`
+
+	for _, commit := range commits {
+		// Ensure the commit has a valid repository.
+		if commit.RepositoryID == 0 {
+			repoID, err := s.getOrCreateRepository(ctx, tx, &commit.Repository)
+			if err != nil {
+				_ = tx.Rollback()
+				return fmt.Errorf("upserting commit %s: %w", commit.SHA, err)
+			}
+			commit.RepositoryID = repoID
+		}
+
+		// Ensure the commit has a valid author.
+		if commit.AuthorID == 0 {
+			authorID, err := s.getOrCreateAuthor(ctx, tx, &commit.Author)
+			if err != nil {
+				_ = tx.Rollback()
+				return fmt.Errorf("upserting commit %s: %w", commit.SHA, err)
+			}
+			commit.AuthorID = authorID
+		}
+
+		// Ensure a UID is set.
+		if commit.UID == uuid.Nil {
+			commit.UID = uuid.New()
+		}
+		// Ensure CreatedAt is set.
+		if commit.CreatedAt.IsZero() {
+			commit.CreatedAt = time.Now()
+		}
+		// Execute the upsert.
+		if _, err := tx.NamedExecContext(ctx, query, commit); err != nil {
+			_ = tx.Rollback()
+			return fmt.Errorf("upserting commit %s: %w", commit.SHA, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit transaction: %w", err)
+	}
+	return nil
+}

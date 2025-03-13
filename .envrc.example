@@ -1,0 +1,15 @@
+export APP_NAME=lema
+export PROJECT_ROOT=$(pwd)
+export APISERVER_PORT=3000
+export APISERVER_HOST=localhost
+export DB_NAME=lemadb
+export DB_HOST=127.0.0.1
+export DB_USER=admin
+export DB_PASSWORD=secret
+export DB_PORT=5432
+export DB_PORT_TEST=5433
+export REDIS_HOST=localhost
+export REDIS_PORT=6379
+export REDIS_URL=redis://localhost:6379/0
+export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/$DB_NAME?sslmode=disable
+export GITHUB_BASE_URL=https://api.github.com/repos

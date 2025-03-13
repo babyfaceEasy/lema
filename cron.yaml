@@ -1,0 +1,3 @@
+configs:
+  - cronspec: "*/10 * * * *"
+    task_type: cron:commits_update
