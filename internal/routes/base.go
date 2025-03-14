@@ -25,6 +25,7 @@ func RegisterRoutes(config *config.Config, logger *zap.Logger, store *store.Stor
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	// global middlewares
+	router.Use(middleware.CORS)
 	router.Use(middleware.LoggerMiddleware)
 
 	// v1 endpoints

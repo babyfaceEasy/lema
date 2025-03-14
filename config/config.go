@@ -29,14 +29,15 @@ type Config struct {
 	DatabasePortTest string `env:"DB_PORT_TEST"`
 
 	// Redis
-	RedisURL string `env:"REDIS_URL"`
+	RedisURL  string `env:"REDIS_URL"`
 	RedisPort string `env:"REDIS_PORT"`
 	RedisHost string `env:"REDIS_HOST"`
 
 	// app
-	AppName     string `env:"APP_NAME"`
-	Env         Env    `env:"ENV" envDefault:"dev"`
-	ProjectRoot string `env:"PROJECT_ROOT"`
+	AppName       string `env:"APP_NAME"`
+	Env           Env    `env:"ENV" envDefault:"dev"`
+	ProjectRoot   string `env:"PROJECT_ROOT"`
+	CorsWhiteList string `env:"CORS_WHITELIST"`
 
 	// Github
 	GithubBaseUrl string `env:"GITHUB_BASE_URL"`

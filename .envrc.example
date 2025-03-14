@@ -13,3 +13,4 @@ export REDIS_PORT=6379
 export REDIS_URL=redis://localhost:6379/0
 export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/$DB_NAME?sslmode=disable
 export GITHUB_BASE_URL=https://api.github.com/repos
+export CORS_WHITELIST=http://localhost:3000,
