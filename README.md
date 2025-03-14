@@ -91,9 +91,16 @@ This endpoint returns the top N authors by commit count.
 - - Expected format: `YYYY-MM-DDTHH:MM:SSZ`
 - - Example: `2024-01-12T10:30:00Z`
 
+
+- **Query Parameter:** `owner_name`
+- - This is the name of the owner of the repository.
+- - Expected format: `string`
+- - Example: `chromium`
+- - Defaults to the path parameter `repository_name` if not provided
+
 Example:
 ```bash
-http://localhost:3000/v1/repositories/chromium/commits?until=2024-01-12T10:30:00Z
+http://localhost:3000/v1/repositories/chromium/commits?until=2024-01-12T10:30:00Z&owner_name=chromium
 ```
 
 ---
