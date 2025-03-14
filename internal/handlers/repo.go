@@ -49,9 +49,10 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 	// Check if the repository exists in the DB.
 	exists, err := h.store.Repositories.Exists(r.Context(), repositoryName)
 	if err != nil {
+		h.logger.Error("error in checking if repository exists", zap.Error(err))
 		code, res := h.response(http.StatusBadRequest, ResponseFormat{
 			Status:  false,
-			Message: err.Error(),
+			Message: messages.SomethingWentWrong,
 		})
 		utils.SendResponse(w, code, res)
 		return
@@ -61,35 +62,46 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 		// Get repository details from DB (which includes SinceDate).
 		repoDetails, err := h.store.Repositories.ByName(r.Context(), repositoryName)
 		if err != nil {
-			h.logger.Error("error in getting repo details", zap.Error(err))
+			h.logger.Error("error in getting repo details from db", zap.Error(err))
 			code, res := h.response(http.StatusNotFound, ResponseFormat{
 				Status:  false,
-				Message: messages.NotFound,
+				Message: messages.SomethingWentWrong,
 			})
 			utils.SendResponse(w, code, res)
 			return
 		}
 
-		// Get stored commits from DB.
-		dbCommits, err := h.store.Commits.GetCommitsByRepositoryName(r.Context(), repositoryName)
-		if err != nil {
-			code, res := h.response(http.StatusBadRequest, ResponseFormat{
-				Status:  false,
-				Message: err.Error(),
-			})
-			utils.SendResponse(w, code, res)
-			return
-		}
+		/*
+			// Get stored commits from DB.
+			dbCommits, err := h.store.Commits.GetCommitsByRepositoryName(r.Context(), repositoryName)
+			if err != nil {
+				h.logger.Error("error in getting commits belonging to a repository", zap.String("repository_name", repositoryName), zap.Error(err))
+				code, res := h.response(http.StatusBadRequest, ResponseFormat{
+					Status:  false,
+					Message: messages.SomethingWentWrong,
+				})
+				utils.SendResponse(w, code, res)
+				return
+			}
+		*/
 
 		// Call GitHub API to get new/updated commits since repoDetails.SinceDate up to untilTime.
 		commitResponses, err := githubClient.GetCommits(repositoryName, ownerName, &repoDetails.SinceDate, untilTime)
 		if err != nil {
+			h.logger.Error("error in getting commits from github client", zap.Error(err))
 			code, res := h.response(http.StatusBadRequest, ResponseFormat{
 				Status:  false,
-				Message: err.Error(),
+				Message: messages.SomethingWentWrong,
 			})
 			utils.SendResponse(w, code, res)
 			return
+		}
+
+		// Get the latest "until" date.
+		// If an untilDate is passed, use it as the new untilDate else use the one from repoDetails.
+		latestUntilDate := untilTime
+		if latestUntilDate == nil {
+			latestUntilDate = repoDetails.UntilDate
 		}
 
 		// Convert GitHub commit responses to store.Commit objects.
@@ -102,6 +114,7 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 				Repository: store.Repository{
 					// Use the existing repository details.
 					Name:                repoDetails.Name,
+					OwnerName:           repoDetails.OwnerName,
 					Description:         repoDetails.Description,
 					URL:                 repoDetails.URL,
 					ProgrammingLanguage: repoDetails.ProgrammingLanguage,
@@ -110,14 +123,14 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 					WatchersCount:       repoDetails.WatchersCount,
 					OpenIssuesCount:     repoDetails.OpenIssuesCount,
 					SinceDate:           repoDetails.SinceDate,
+					UntilDate:           latestUntilDate,
 					CreatedAt:           repoDetails.CreatedAt,
 				},
 				Author: store.Author{
 					Name:  com.Commit.Author.Name,
 					Email: com.Commit.Author.Email,
 				},
-				// Ideally, use the commit's actual date.
-				Date:      time.Now(),
+				Date:      com.Commit.Author.Date,
 				CreatedAt: time.Now(),
 			}
 			commitsToUpsert = append(commitsToUpsert, commit)
@@ -127,9 +140,10 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 		if len(commitsToUpsert) > 0 {
 			err = h.store.Commits.UpsertCommits(r.Context(), commitsToUpsert)
 			if err != nil {
+				h.logger.Error("error in performing upsert operation", zap.Error(err))
 				code, res := h.response(http.StatusBadRequest, ResponseFormat{
 					Status:  false,
-					Message: err.Error(),
+					Message: messages.SomethingWentWrong,
 				})
 				utils.SendResponse(w, code, res)
 				return
@@ -142,11 +156,12 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Retrieve and return the (updated) stored commits.
-		dbCommits, err = h.store.Commits.GetCommitsByRepositoryName(r.Context(), repositoryName)
+		dbCommits, err := h.store.Commits.GetCommitsByRepositoryName(r.Context(), repositoryName)
 		if err != nil {
+			h.logger.Error("error in getting commits belonging to a repository", zap.String("repository_name", repositoryName), zap.Error(err))
 			code, res := h.response(http.StatusBadRequest, ResponseFormat{
 				Status:  false,
-				Message: err.Error(),
+				Message: messages.SomethingWentWrong,
 			})
 			utils.SendResponse(w, code, res)
 			return
@@ -164,6 +179,7 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 	// Get repository details from GitHub.
 	repoResponse, err := githubClient.GetRepositoryDetails(repositoryName, ownerName)
 	if err != nil {
+		h.logger.Error("error in getting repository details from github server", zap.Error(err))
 		code, res := h.response(http.StatusBadRequest, ResponseFormat{
 			Status:  false,
 			Message: err.Error(),
@@ -175,6 +191,7 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 	// Get all commits from GitHub; no since date since repo is new.
 	commitResponses, err := githubClient.GetCommits(repositoryName, ownerName, nil, untilTime)
 	if err != nil {
+		h.logger.Error("error in getting commits from github server", zap.Error(err))
 		code, res := h.response(http.StatusBadRequest, ResponseFormat{
 			Status:  false,
 			Message: err.Error(),
@@ -192,6 +209,7 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 			Message: com.Commit.Message,
 			Repository: store.Repository{
 				Name:                repoResponse.Name,
+				OwnerName:           ownerName,
 				Description:         repoResponse.Description,
 				URL:                 repoResponse.URL,
 				ProgrammingLanguage: repoResponse.ProgrammingLanguage,
@@ -199,15 +217,15 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 				StarsCount:          repoResponse.StarsCount,
 				WatchersCount:       repoResponse.WatchersCount,
 				OpenIssuesCount:     repoResponse.OpenIssuesCount,
-				// Set the initial SinceDate to now.
-				SinceDate: time.Now(),
-				CreatedAt: time.Now(),
+				UntilDate:           untilTime,
+				SinceDate:           time.Now(), // Set the initial SinceDate to now.
+				CreatedAt:           time.Now(),
 			},
 			Author: store.Author{
 				Name:  com.Commit.Author.Name,
 				Email: com.Commit.Author.Email,
 			},
-			Date:      time.Now(), // Replace with actual commit date if available.
+			Date:      com.Commit.Author.Date,
 			CreatedAt: time.Now(),
 		}
 		commits = append(commits, newCommit)
@@ -216,9 +234,10 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 	// Store all commits for the new repository.
 	err = h.store.Commits.StoreCommits(r.Context(), commits)
 	if err != nil {
+		h.logger.Error("error in storing all commits at a go", zap.Error(err))
 		code, res := h.response(http.StatusBadRequest, ResponseFormat{
 			Status:  false,
-			Message: err.Error(),
+			Message: messages.SomethingWentWrong,
 		})
 		utils.SendResponse(w, code, res)
 		return
@@ -236,9 +255,10 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 	// Retrieve and return the stored commits.
 	storedCommits, err := h.store.Commits.GetCommitsByRepositoryName(r.Context(), repoResponse.Name)
 	if err != nil {
+		h.logger.Error("error in getting stored commits", zap.Error(err))
 		code, res := h.response(http.StatusBadRequest, ResponseFormat{
 			Status:  false,
-			Message: err.Error(),
+			Message: messages.SomethingWentWrong,
 		})
 		utils.SendResponse(w, code, res)
 		return

@@ -33,24 +33,22 @@ type Commit struct {
 }
 
 type AuthorWithCommitCount struct {
-	Author          // Embeds the Author struct.
+	Author
 	CommitCount int `db:"commit_count" json:"commit_count"`
 }
 
 // getOrCreateRepository checks if a repository exists based on its Name Field.
-// If not found, it inserts a new repository record and returns its ID.
 func (s *CommitStore) getOrCreateRepository(ctx context.Context, tx *sqlx.Tx, repo *Repository) (int, error) {
-	// Ensure repository UID is set.
 	if repo.UID == uuid.Nil {
 		repo.UID = uuid.New()
 	}
+
 	var id int
-	// Check if the repository exists by its UID.
 	query := `SELECT id FROM repositories WHERE name = $1 LIMIT 1`
 	err := tx.GetContext(ctx, &id, query, repo.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Set timestamps if not already set.
+			// Set defaults for timestamps.
 			now := time.Now()
 			if repo.CreatedAt.IsZero() {
 				repo.CreatedAt = now
@@ -58,12 +56,12 @@ func (s *CommitStore) getOrCreateRepository(ctx context.Context, tx *sqlx.Tx, re
 			if repo.SinceDate.IsZero() {
 				repo.SinceDate = now
 			}
-			// Insert a new repository.
+
 			insertQuery := `
 				INSERT INTO repositories 
-				(uid, name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, since_date, created_at)
+				(uid, name, owner_name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, since_date, created_at, until_date)
 				VALUES 
-				(:uid, :name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :since_date, :created_at)
+				(:uid, :name, :owner_name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :since_date, :created_at, :until_date)
 				RETURNING id
 			`
 			stmt, err := tx.PrepareNamedContext(ctx, insertQuery)
@@ -83,19 +81,16 @@ func (s *CommitStore) getOrCreateRepository(ctx context.Context, tx *sqlx.Tx, re
 }
 
 // getOrCreateAuthor checks if an author exists based on its Name Field.
-// If not found, it inserts a new author record and returns its ID.
 func (s *CommitStore) getOrCreateAuthor(ctx context.Context, tx *sqlx.Tx, author *Author) (int, error) {
-	// Ensure author UID is set.
 	if author.UID == uuid.Nil {
 		author.UID = uuid.New()
 	}
+
 	var id int
-	// Check if the author exists by UID.
 	query := `SELECT id FROM authors WHERE name = $1 LIMIT 1`
 	err := tx.GetContext(ctx, &id, query, author.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Insert a new author.
 			insertQuery := `
 				INSERT INTO authors 
 				(uid, name, email)
@@ -103,12 +98,6 @@ func (s *CommitStore) getOrCreateAuthor(ctx context.Context, tx *sqlx.Tx, author
 				(:uid, :name, :email)
 				RETURNING id
 			`
-			/*
-				err = tx.GetContext(ctx, &id, insertQuery, author)
-				if err != nil {
-					return 0, fmt.Errorf("failed to insert author: %w", err)
-				}
-			*/
 
 			stmt, err := tx.PrepareNamedContext(ctx, insertQuery)
 			if err != nil {
@@ -127,10 +116,7 @@ func (s *CommitStore) getOrCreateAuthor(ctx context.Context, tx *sqlx.Tx, author
 }
 
 // StoreCommits inserts a list of commits into the database.
-// For each commit, it ensures that the related repository and author exist,
-// then inserts the commit record with the proper foreign keys.
 func (s *CommitStore) StoreCommits(ctx context.Context, commits []Commit) error {
-	// Begin a transaction.
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
@@ -143,7 +129,6 @@ func (s *CommitStore) StoreCommits(ctx context.Context, commits []Commit) error 
 			(:uid, :repository_id, :author_id, :url, :sha, :message, :date, :created_at)
 	`
 	for _, commit := range commits {
-		// Ensure the repository exists (or is created) and get its ID.
 		repoID, err := s.getOrCreateRepository(ctx, tx, &commit.Repository)
 		if err != nil {
 			_ = tx.Rollback()
@@ -151,7 +136,6 @@ func (s *CommitStore) StoreCommits(ctx context.Context, commits []Commit) error 
 		}
 		commit.RepositoryID = repoID
 
-		// Ensure the author exists (or is created) and get its ID.
 		authorID, err := s.getOrCreateAuthor(ctx, tx, &commit.Author)
 		if err != nil {
 			_ = tx.Rollback()
@@ -159,7 +143,7 @@ func (s *CommitStore) StoreCommits(ctx context.Context, commits []Commit) error 
 		}
 		commit.AuthorID = authorID
 
-		// Set default values if not already set.
+		// Set default values.
 		if commit.UID == uuid.Nil {
 			commit.UID = uuid.New()
 		}
@@ -167,13 +151,7 @@ func (s *CommitStore) StoreCommits(ctx context.Context, commits []Commit) error 
 		if commit.CreatedAt.IsZero() {
 			commit.CreatedAt = now
 		}
-		/*
-			if commit.UpdatedAt.IsZero() {
-				commit.UpdatedAt = now
-			}
-		*/
 
-		// Insert the commit.
 		_, err = tx.NamedExecContext(ctx, commitQuery, commit)
 		if err != nil {
 			_ = tx.Rollback()
@@ -181,7 +159,6 @@ func (s *CommitStore) StoreCommits(ctx context.Context, commits []Commit) error 
 		}
 	}
 
-	// Commit the transaction.
 	return tx.Commit()
 }
 
@@ -206,6 +183,7 @@ func (s *CommitStore) GetCommitsByRepositoryName(ctx context.Context, repository
 		r.id AS "Repository.id",
 		r.uid AS "Repository.uid",
 		r.name AS "Repository.name",
+		r.owner_name AS "Repository.owner_name",
 		r.description AS "Repository.description",
 		r.url AS "Repository.url",
 		r.programming_language AS "Repository.programming_language",
@@ -213,6 +191,8 @@ func (s *CommitStore) GetCommitsByRepositoryName(ctx context.Context, repository
 		r.stars_count AS "Repository.stars_count",
 		r.watchers_count AS "Repository.watchers_count",
 		r.open_issues_count AS "Repository.open_issues_count",
+		r.since_date AS "Repository.since_date",
+		r.until_date AS "Repository.until_date",
 		r.created_at AS "Repository.created_at",
 		-- r.updated_at AS "Repository.updated_at",
 		-- Author fields with "Author." prefix
@@ -299,15 +279,15 @@ func (s *CommitStore) UpsertCommits(ctx context.Context, commits []Commit) error
 			commit.AuthorID = authorID
 		}
 
-		// Ensure a UID is set.
+		// Set a UID.
 		if commit.UID == uuid.Nil {
 			commit.UID = uuid.New()
 		}
-		// Ensure CreatedAt is set.
+
 		if commit.CreatedAt.IsZero() {
 			commit.CreatedAt = time.Now()
 		}
-		// Execute the upsert.
+
 		if _, err := tx.NamedExecContext(ctx, query, commit); err != nil {
 			_ = tx.Rollback()
 			return fmt.Errorf("upserting commit %s: %w", commit.SHA, err)

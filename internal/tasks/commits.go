@@ -25,7 +25,7 @@ func (t *Task) HandleCommitsUpdateTask(ctx context.Context, a *asynq.Task) error
 	for _, repoDetails := range repos {
 
 		// Call GitHub API to get new/updated commits since repoDetails.SinceDate up to untilTime.
-		commitResponses, err := githubClient.GetCommits(repoDetails.Name, repoDetails.Name, &repoDetails.SinceDate, nil)
+		commitResponses, err := githubClient.GetCommits(repoDetails.Name, repoDetails.Name, &repoDetails.SinceDate, repoDetails.UntilDate)
 		if err != nil {
 			return err
 		}

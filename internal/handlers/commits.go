@@ -9,8 +9,6 @@ import (
 )
 
 func (h Handler) GetTopCommitAuthors(w http.ResponseWriter, r *http.Request) {
-	// use the query parameter checker to check for either top_n or repo
-
 	limitStr := r.URL.Query().Get("limit")
 	if limitStr == "" {
 		// Set a default value if "limit" is not provided.
@@ -29,7 +27,6 @@ func (h Handler) GetTopCommitAuthors(w http.ResponseWriter, r *http.Request) {
 		utils.SendResponse(w, code, res)
 		return
 	}
-
 	h.logger.Info("value of query parameters passed", zap.Int("limit", limit))
 
 	authors, err := h.store.Commits.GetTopCommitAuthors(r.Context(), limit)

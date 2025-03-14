@@ -45,9 +45,9 @@ type Person struct {
 
 // CommitDetail holds detailed information about the commit.
 type CommitDetail struct {
-	Author    Person `json:"author"`
-	Committer Person `json:"committer"`
-	Message   string `json:"message"`
+	Author       Person `json:"author"`
+	Committer    Person `json:"committer"`
+	Message      string `json:"message"`
 	URL          string `json:"url"`
 	CommentCount int    `json:"comment_count"`
 }
@@ -78,7 +78,6 @@ func (c *Client) GetCommits(repositoryName, ownerName string, since, until *time
 		return nil, fmt.Errorf("failed to create get commits request: %w", err)
 	}
 
-	// Add query parameters if provided.
 	q := req.URL.Query()
 	if since != nil {
 		q.Set("since", since.UTC().Format(time.RFC3339))
@@ -116,7 +115,6 @@ func (c *Client) GetCommits(repositoryName, ownerName string, since, until *time
 	return commits, nil
 }
 
-
 func (c *Client) GetRepositoryDetails(repositoryName, ownerName string) (*RepositoryResponse, error) {
 	endpoint := fmt.Sprintf(c.baseURL+"/%s/%s", ownerName, repositoryName)
 	req, err := http.NewRequest("GET", endpoint, nil)
@@ -124,7 +122,6 @@ func (c *Client) GetRepositoryDetails(repositoryName, ownerName string) (*Reposi
 		return nil, fmt.Errorf("failed to create get repository details request: %w", err)
 	}
 
-	// executes the request
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to submit get repository details http request: %w", err)

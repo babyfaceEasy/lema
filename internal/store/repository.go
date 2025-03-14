@@ -19,23 +19,25 @@ func NewRepositoryStore(db *sql.DB) *RepositoryStore {
 }
 
 type Repository struct {
-	ID                  int       `db:"id" json:"-"`
-	UID                 uuid.UUID `db:"uid" json:"id,omitempty"`
-	Name                string    `db:"name" json:"name"`
-	Description         string    `db:"description" json:"description"`
-	URL                 string    `db:"url" json:"url"`
-	ProgrammingLanguage string    `db:"programming_language" json:"language"`
-	ForksCount          int       `db:"forks_count" json:"forks_count"`
-	StarsCount          int       `db:"stars_count" json:"stars_count"`
-	WatchersCount       int       `db:"watchers_count" json:"watchers_count"`
-	OpenIssuesCount     int       `db:"open_issues_count" json:"open_issues_count"`
-	SinceDate           time.Time `db:"since_date" json:"-"`
-	CreatedAt           time.Time `db:"created_at" json:"-"`
+	ID                  int        `db:"id" json:"-"`
+	UID                 uuid.UUID  `db:"uid" json:"id,omitempty"`
+	Name                string     `db:"name" json:"name"`
+	OwnerName           string     `db:"owner_name" json:"owner_name"`
+	Description         string     `db:"description" json:"description"`
+	URL                 string     `db:"url" json:"url"`
+	ProgrammingLanguage string     `db:"programming_language" json:"language"`
+	ForksCount          int        `db:"forks_count" json:"forks_count"`
+	StarsCount          int        `db:"stars_count" json:"stars_count"`
+	WatchersCount       int        `db:"watchers_count" json:"watchers_count"`
+	OpenIssuesCount     int        `db:"open_issues_count" json:"open_issues_count"`
+	UntilDate           *time.Time `db:"until_date" json:"-"`
+	SinceDate           time.Time  `db:"since_date" json:"-"`
+	CreatedAt           time.Time  `db:"created_at" json:"-"`
 }
 
 // ByName returns the repository details if it exists in the system.
 func (s *RepositoryStore) ByName(ctx context.Context, repoName string) (*Repository, error) {
-	const query = "SELECT * FROM repositories WHERE name = $1"
+	const query = `SELECT * FROM repositories WHERE name = $1`
 
 	var repo Repository
 	if err := s.db.GetContext(ctx, &repo, query, repoName); err != nil {
@@ -71,13 +73,6 @@ func (s *RepositoryStore) Exists(ctx context.Context, name string) (bool, error)
 
 // UpdateSinceDate updates the since_date (and updated_at) for the repository with the given name.
 func (s *RepositoryStore) UpdateSinceDate(ctx context.Context, repositoryName string, newSinceDate time.Time) error {
-	/*
-		query := `
-			UPDATE repositories
-			SET since_date = $1, updated_at = $2
-			WHERE name = $3
-		`
-	*/
 	query := `
 		UPDATE repositories 
 		SET since_date = $1
@@ -92,7 +87,6 @@ func (s *RepositoryStore) UpdateSinceDate(ctx context.Context, repositoryName st
 
 // CreateOrUpdate creates a new repository record if one does not exist (by name),
 // or updates the existing record with the provided fields.
-// It returns nil on success.
 func (s *RepositoryStore) CreateOrUpdate(ctx context.Context, repo Repository) error {
 	var id int
 	// Check if repository exists using its name.
@@ -103,7 +97,6 @@ func (s *RepositoryStore) CreateOrUpdate(ctx context.Context, repo Repository) e
 	`, repo.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Repository does not exist, so insert a new one.
 			if repo.UID == uuid.Nil {
 				repo.UID = uuid.New()
 			}
@@ -116,9 +109,9 @@ func (s *RepositoryStore) CreateOrUpdate(ctx context.Context, repo Repository) e
 			}
 			insertQuery := `
 				INSERT INTO repositories 
-					(uid, name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, created_at, updated_at, since_date)
+					(uid, name, owner_name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, created_at, updated_at, since_date, until_date)
 				VALUES 
-					(:uid, :name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :created_at, :updated_at, :since_date)
+					(:uid, :name, :owner_name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :created_at, :updated_at, :since_date, :until_date)
 				RETURNING id
 			`
 			err = s.db.GetContext(ctx, &id, insertQuery, repo)
@@ -138,6 +131,7 @@ func (s *RepositoryStore) CreateOrUpdate(ctx context.Context, repo Repository) e
 			UPDATE repositories SET 
 				description = :description,
 				url = :url,
+				owner_name = :owner_name,
 				programming_language = :programming_language,
 				forks_count = :forks_count,
 				stars_count = :stars_count,
@@ -145,6 +139,7 @@ func (s *RepositoryStore) CreateOrUpdate(ctx context.Context, repo Repository) e
 				open_issues_count = :open_issues_count,
 				updated_at = :updated_at,
 				since_date = :since_date
+				until_date = :until_date
 			WHERE name = :name
 		`
 		res, err := s.db.NamedExecContext(ctx, updateQuery, repo)
