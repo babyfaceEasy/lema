@@ -2,16 +2,35 @@ package tasks
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/babyfaceeasy/lema/internal/integrations/githubapi"
 	"github.com/babyfaceeasy/lema/internal/store"
+	"github.com/bytedance/sonic"
 	"github.com/hibiken/asynq"
 	"go.uber.org/zap"
 )
 
-func (t *Task) HandleCommitsUpdateTask(ctx context.Context, a *asynq.Task) error {
+type LoadCommitsTaskInput struct {
+	RepositoryName  string
+	RepositoryOwner string
+}
+
+type GetLatestCommitsTaskInput struct {
+	RepositoryName  string
+	RepositoryOwner string
+}
+
+type ResetCommitsTaskInput struct {
+	RepositoryName  string
+	RepositoryOwner string
+}
+
+// cron handlers
+func (t *Task) HandleCommitsUpdateTaskOLD(ctx context.Context, a *asynq.Task) error {
 	// Get repositories by name
 	repos, err := t.store.Repositories.GetAll(context.Background())
 	if err != nil {
@@ -79,4 +98,107 @@ func (t *Task) HandleCommitsUpdateTask(ctx context.Context, a *asynq.Task) error
 
 	}
 	return nil
+}
+
+func (t *Task) HandleCommitsUpdateTask(ctx context.Context, a *asynq.Task) error {
+	logr := t.logger.With(zap.String("method", "HandleCommitsUpdateTask"))
+
+	repos, err := t.repositoryService.GetAllRepositories(ctx)
+	if err != nil {
+		return err
+	}
+
+	logr.Debug("on level 2")
+
+	for _, repoDetails := range repos {
+		err := CallLatestCommitsTask(repoDetails.OwnerName, repoDetails.Name)
+		if err != nil {
+			logr.Error("error in adding repositories to get latest task", zap.Error(err))
+		}
+
+		logr.Debug("added repo for getting latest commits", zap.String("repo_name", repoDetails.Name))
+	}
+
+	return nil
+}
+
+func CallLoadCommitsTask(owner, name string) error {
+	i := LoadCommitsTaskInput{RepositoryOwner: owner, RepositoryName: name}
+	payload, err := sonic.Marshal(i)
+	if err != nil {
+		return err
+	}
+
+	info, err := client.Enqueue(asynq.NewTask("ops:load_commits", payload), asynq.Retention(5*time.Hour), asynq.Queue(TypeQueueCritical))
+	if err != nil {
+		return err
+	}
+
+	log.Printf(" [*] Successfully enqueued task: %+v", *info)
+
+	return nil
+}
+
+// task handlers
+func (t *Task) HandleLoadCommitsTask(ctx context.Context, a *asynq.Task) error {
+	var p LoadCommitsTaskInput
+	if err := sonic.Unmarshal(a.Payload(), &p); err != nil {
+		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
+	}
+
+	return t.commitService.LoadCommits(ctx, p.RepositoryOwner, p.RepositoryName)
+}
+
+func CallLatestCommitsTask(owner, name string) error {
+	i := LoadCommitsTaskInput{RepositoryOwner: owner, RepositoryName: name}
+	payload, err := sonic.Marshal(i)
+	if err != nil {
+		return err
+	}
+
+	info, err := client.Enqueue(asynq.NewTask("ops:latest_commits", payload), asynq.Retention(5*time.Hour), asynq.Queue(TypeQueueDefault))
+	if err != nil {
+		return err
+	}
+
+	log.Printf(" [*] Successfully enqueued task: %+v", *info)
+
+	return nil
+}
+
+func (t *Task) HandleLatestCommitsTask(ctx context.Context, a *asynq.Task) error {
+	// logr := t.logger.With(zap.String("method", "HandleLatestCommitsTask"))
+	var p GetLatestCommitsTaskInput
+	if err := sonic.Unmarshal(a.Payload(), &p); err != nil {
+		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
+	}
+
+	return t.commitService.GetLatestCommits(ctx, p.RepositoryOwner, p.RepositoryName)
+}
+
+func CallResetCommitsTask(owner, name string) error {
+	i := ResetCommitsTaskInput{RepositoryOwner: owner, RepositoryName: name}
+	payload, err := sonic.Marshal(i)
+	if err != nil {
+		return err
+	}
+
+	info, err := client.Enqueue(asynq.NewTask("ops:reset_commits", payload), asynq.Retention(5*time.Hour), asynq.Queue(TypeQueueDefault))
+	if err != nil {
+		return err
+	}
+
+	log.Printf(" [*] Successfully enqueued task: %+v", *info)
+
+	return nil
+}
+
+func (t *Task) HandleResetCommitsTask(ctx context.Context, a *asynq.Task) error {
+	// logr := t.logger.With(zap.String("method", "HandleResetCommitsTask"))
+	var p ResetCommitsTaskInput
+	if err := sonic.Unmarshal(a.Payload(), &p); err != nil {
+		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
+	}
+
+	return t.commitService.ResetCommits(ctx, p.RepositoryOwner, p.RepositoryName)
 }
