@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/babyfaceeasy/lema/config"
+	"github.com/babyfaceeasy/lema/internal/container"
 	"github.com/babyfaceeasy/lema/internal/routes"
 	"github.com/babyfaceeasy/lema/internal/store"
 	"go.uber.org/zap"
@@ -23,8 +24,14 @@ func New(config *config.Config, logger *zap.Logger, store *store.Store) *ApiServ
 	return &ApiServer{config: config, logger: logger, store: store}
 }
 
-func (s *ApiServer) Start(ctx context.Context) error {
-	mux := routes.RegisterRoutes(s.config, s.logger, s.store)
+func (s *ApiServer) Start(ctx context.Context, diContainer *container.Container) error {
+	// container
+	/*
+		diContainer := container.NewContainer(s.config, s.logger)
+		defer diContainer.Close()
+	*/
+
+	mux := routes.RegisterRoutes(s.config, s.logger, s.store, diContainer.GetCommitService(), diContainer.GetRepositoryService())
 	server := &http.Server{
 		Addr:    net.JoinHostPort(s.config.ApiServerHost, s.config.ApiServerPort),
 		Handler: mux,

@@ -13,8 +13,12 @@ CREATE TABLE IF NOT EXISTS repositories (
     open_issues_count BIGINT,
     until_date TIMESTAMPTZ,
     since_date TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(name, owner_name)
 );
+
+-- Create an index for quick lookup by name and owner
+CREATE UNIQUE INDEX IF NOT EXISTS idx_repositories_name_owner ON repositories(name, owner_name);
 
 -- +goose Down
 DROP TABLE IF EXISTS repositories;

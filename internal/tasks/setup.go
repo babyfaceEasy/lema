@@ -10,6 +10,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var client *asynq.Client
+
+const (
+	TypeQueueCritical = "critical"
+	TypeQueueDefault  = "default"
+)
+
 // config for periodic task
 type FileBasedConfigProvider struct {
 	filename string
@@ -24,30 +31,27 @@ type Config struct {
 	TaskType string `yaml:"task_type"`
 }
 
-/*
-func loggingMiddleware(h asynq.Handler) asynq.Handler {
-	return asynq.HandlerFunc(func(ctx context.Context, t *asynq.Task) error {
-		start := time.Now()
-		log.Printf("Start processing %q", t.Type())
-		err := h.ProcessTask(ctx, t)
-		if err != nil {
-			return err
-		}
-		log.Printf("Finished processing %q: Elapsed Time = %v", t.Type(), time.Since(start))
-		return nil
-	})
-}
-*/
-
 // start worker
 func StartWorker(t Task, config *config.Config) error {
+	client = asynq.NewClient(asynq.RedisClientOpt{Addr: config.RedisAddress()})
+
 	srv := asynq.NewServer(
 		asynq.RedisClientOpt{Addr: config.RedisAddress()},
-		asynq.Config{Concurrency: 10},
+		asynq.Config{Concurrency: 10, Queues: map[string]int{
+			TypeQueueCritical: 3,
+			TypeQueueDefault:  1,
+		}},
 	)
 
 	mux := asynq.NewServeMux()
 	mux.Use(t.LoggingMiddleware)
+
+	// tasks
+	mux.HandleFunc("ops:load_commits", t.HandleLoadCommitsTask)
+	mux.HandleFunc("ops:latest_commits", t.HandleLatestCommitsTask)
+	mux.HandleFunc("ops:reset_commits", t.HandleResetCommitsTask)
+
+	// cron
 	mux.HandleFunc("cron:commits_update", t.HandleCommitsUpdateTask)
 
 	go func() {

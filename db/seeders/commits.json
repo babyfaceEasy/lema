@@ -1,0 +1,1522 @@
+[
+  {
+    "sha": "28c496fc84c6504dad57a57a95062983ce49d7f2",
+    "node_id": "C_kwDOByyPPdoAKDI4YzQ5NmZjODRjNjUwNGRhZDU3YTU3YTk1MDYyOTgzY2U0OWQ3ZjI",
+    "commit": {
+      "author": {
+        "name": "Dominik Röttsches",
+        "email": "drott@chromium.org",
+        "date": "2025-03-12T10:35:55Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:35:55Z"
+      },
+      "message": "Move more tests to run under content_shell temporarily\n\nIn these tests, text artifacts occur due to compositing of\nantialiased contours and layer/compositing differences between\nbase and ref. These can be removed once headless WPT runner disables\nantialiasing.\n\nBug: chromium:339041663, chromium:402354784, chromium:377818367\nChange-Id: I3c1f8f13edb683cebd6c36df43a99f96e1792dda\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346746\nCommit-Queue: Dominik Röttsches <drott@chromium.org>\nReviewed-by: Rune Lillesveen <futhark@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431407}",
+      "tree": {
+        "sha": "e5ce394399ee2a610538ce43039a9f3f4015803a",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/e5ce394399ee2a610538ce43039a9f3f4015803a"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/28c496fc84c6504dad57a57a95062983ce49d7f2",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/28c496fc84c6504dad57a57a95062983ce49d7f2",
+    "html_url": "https://github.com/chromium/chromium/commit/28c496fc84c6504dad57a57a95062983ce49d7f2",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/28c496fc84c6504dad57a57a95062983ce49d7f2/comments",
+    "author": {
+      "login": "drott",
+      "id": 1021784,
+      "node_id": "MDQ6VXNlcjEwMjE3ODQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1021784?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/drott",
+      "html_url": "https://github.com/drott",
+      "followers_url": "https://api.github.com/users/drott/followers",
+      "following_url": "https://api.github.com/users/drott/following{/other_user}",
+      "gists_url": "https://api.github.com/users/drott/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/drott/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/drott/subscriptions",
+      "organizations_url": "https://api.github.com/users/drott/orgs",
+      "repos_url": "https://api.github.com/users/drott/repos",
+      "events_url": "https://api.github.com/users/drott/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/drott/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "d4ef1541207f977333c6def953d2991a9c55b6a3",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/d4ef1541207f977333c6def953d2991a9c55b6a3",
+        "html_url": "https://github.com/chromium/chromium/commit/d4ef1541207f977333c6def953d2991a9c55b6a3"
+      }
+    ]
+  },
+  {
+    "sha": "d4ef1541207f977333c6def953d2991a9c55b6a3",
+    "node_id": "C_kwDOByyPPdoAKGQ0ZWYxNTQxMjA3Zjk3NzMzM2M2ZGVmOTUzZDI5OTFhOWM1NWI2YTM",
+    "commit": {
+      "author": {
+        "name": "Alexander Hendrich",
+        "email": "hendrich@chromium.org",
+        "date": "2025-03-12T10:32:51Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:32:51Z"
+      },
+      "message": "Revert \"Fix truncated NetLogs by introducing the --net-log-duration\"\n\nThis reverts commit c09e57c352f5f550a1a86a708ef1614682a98d19.\n\nReason for revert: test failures on mac bots (https://g-issues.chromium.org/issues/40283474#comment13)\n\nOriginal change's description:\n> Fix truncated NetLogs by introducing the --net-log-duration\n> flag.\n>\n> Net logs generated via the command line were often\n> truncated due to insufficient mechanisms to catch\n> close event.This change introduces the --net-log-duration\n> flag,which specifies the duration (in seconds)\n> for network logging. When provided with a positive\n> integer X, Browser will automatically stop logging\n> after X seconds and flush the complete NetLogs to disk.\n>\n> Bug: 40283474\n> Change-Id: Ia958aae8caae4ffcfcfc78ce0e19516fcbaf4006\n> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6293542\n> Reviewed-by: Andrew Williams <awillia@chromium.org>\n> Commit-Queue: krishna dheeraj Pannala <kpannala@microsoft.com>\n> Reviewed-by: Adam Rice <ricea@chromium.org>\n> Cr-Commit-Position: refs/heads/main@{#1431364}\n\nBug: 40283474\nNo-Presubmit: true\nNo-Tree-Checks: true\nNo-Try: true\nChange-Id: Ie4390e81e77f05ecd96b164481f50b7a3df4db30\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6347498\nBot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nOwners-Override: Alexander Hendrich <hendrich@chromium.org>\nAuto-Submit: Alexander Hendrich <hendrich@chromium.org>\nCommit-Queue: Alexander Hendrich <hendrich@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431406}",
+      "tree": {
+        "sha": "da9b0865cf12d0d78489e83557da45f3d774248a",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/da9b0865cf12d0d78489e83557da45f3d774248a"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/d4ef1541207f977333c6def953d2991a9c55b6a3",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/d4ef1541207f977333c6def953d2991a9c55b6a3",
+    "html_url": "https://github.com/chromium/chromium/commit/d4ef1541207f977333c6def953d2991a9c55b6a3",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/d4ef1541207f977333c6def953d2991a9c55b6a3/comments",
+    "author": {
+      "login": "alex292",
+      "id": 3793004,
+      "node_id": "MDQ6VXNlcjM3OTMwMDQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3793004?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/alex292",
+      "html_url": "https://github.com/alex292",
+      "followers_url": "https://api.github.com/users/alex292/followers",
+      "following_url": "https://api.github.com/users/alex292/following{/other_user}",
+      "gists_url": "https://api.github.com/users/alex292/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/alex292/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/alex292/subscriptions",
+      "organizations_url": "https://api.github.com/users/alex292/orgs",
+      "repos_url": "https://api.github.com/users/alex292/repos",
+      "events_url": "https://api.github.com/users/alex292/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/alex292/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d",
+        "html_url": "https://github.com/chromium/chromium/commit/0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d"
+      }
+    ]
+  },
+  {
+    "sha": "0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d",
+    "node_id": "C_kwDOByyPPdoAKDBhZGFiNWNiNWMzZDU0NGMzNWViNzJlM2I1MzcxMmU0ZTFmZDdmMmQ",
+    "commit": {
+      "author": {
+        "name": "chromium-autoroll",
+        "email": "chromium-autoroll@skia-public.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:31:12Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:31:12Z"
+      },
+      "message": "Roll Dawn from 837abc09427f to ab7b56e7a52d (1 revision)\n\nhttps://dawn.googlesource.com/dawn.git/+log/837abc09427f..ab7b56e7a52d\n\n2025-03-12 dawn-autoroll@skia-public.iam.gserviceaccount.com Roll ANGLE from ca3e2abcaded to 4b39a6a9749e (10 revisions)\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://autoroll.skia.org/r/dawn-chromium-autoroll\nPlease CC cwallez@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo file a bug in Dawn: https://bugs.chromium.org/p/dawn/issues/entry\nTo file a bug in Chromium: https://bugs.chromium.org/p/chromium/issues/entry\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nCq-Include-Trybots: luci.chromium.try:dawn-android-arm-deps-rel;luci.chromium.try:dawn-android-arm64-deps-rel;luci.chromium.try:dawn-linux-x64-deps-rel;luci.chromium.try:dawn-mac-x64-deps-rel;luci.chromium.try:dawn-mac-arm64-deps-rel;luci.chromium.try:dawn-win10-x64-deps-rel;luci.chromium.try:dawn-win10-x86-deps-rel;luci.chromium.try:dawn-win11-arm64-deps-rel;luci.chromium.try:android_optional_gpu_tests_rel;luci.chromium.try:linux_optional_gpu_tests_rel;luci.chromium.try:mac_optional_gpu_tests_rel;luci.chromium.try:win_optional_gpu_tests_rel;luci.chromium.try:gpu-fyi-cq-android-arm64\nBug: None\nTbr: cwallez@google.com\nChange-Id: I1f396355abbc474aa1b483a8059f2dcede50fcdc\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346282\nCommit-Queue: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nBot-Commit: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431405}",
+      "tree": {
+        "sha": "00db06f59ee181d715b33341d2472670389bbbcb",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/00db06f59ee181d715b33341d2472670389bbbcb"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d",
+    "html_url": "https://github.com/chromium/chromium/commit/0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/0adab5cb5c3d544c35eb72e3b53712e4e1fd7f2d/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "365e58b96ae568e6e8942695fcabc4f20da09567",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/365e58b96ae568e6e8942695fcabc4f20da09567",
+        "html_url": "https://github.com/chromium/chromium/commit/365e58b96ae568e6e8942695fcabc4f20da09567"
+      }
+    ]
+  },
+  {
+    "sha": "365e58b96ae568e6e8942695fcabc4f20da09567",
+    "node_id": "C_kwDOByyPPdoAKDM2NWU1OGI5NmFlNTY4ZTZlODk0MjY5NWZjYWJjNGYyMGRhMDk1Njc",
+    "commit": {
+      "author": {
+        "name": "Yifan Luo",
+        "email": "lyf@chromium.org",
+        "date": "2025-03-12T10:25:41Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:25:41Z"
+      },
+      "message": "Revert \"[Gardener] Revert \"[Site Settings] Update radio button primary texts\"\"\n\nThis reverts commit be19174b1447d3e63d357dd91f979ba91e2ef4c3.\n\nReason for revert: Decided to disable test other than revert cls.\n\nOriginal change's description:\n> [Gardener] Revert \"[Site Settings] Update radio button primary texts\"\n>\n> This reverts commit f3a7cf3e829c9b418af31f404ee45b8916f955b2.\n>\n> Reason for revert: crrev.com/c/6335832 is causing issues with\n> testAllowGeolocation test. This CL blocks reverting it.\n> See crbug.com/402655848 for details.\n>\n> Original change's description:\n> > [Site Settings] Update radio button primary texts\n> >\n> > This CL changed primary text for the radio buttons and added missing\n> > description for FILE_EDITING.\n> >\n> > UI design: go/site-settings-ui-design\n> >\n> > Binary-Size: Size increase is unavoidable. (Introduced a bench of new text strings for site settings, will remove the old one after feature launched)\n> > Bug: 41494473\n> > Change-Id: I499efea57df107f68cd29ffade267a259073cb08\n> > Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6329624\n> > Commit-Queue: Yifan Luo <lyf@chromium.org>\n> > Reviewed-by: Christian Dullweber <dullweber@chromium.org>\n> > Cr-Commit-Position: refs/heads/main@{#1430904}\n>\n> Bug: 41494473, 402655848\n> No-Presubmit: true\n> No-Tree-Checks: true\n> No-Try: true\n> Change-Id: I5d6c3dbaf675bf0fbaff8def557f5a5417dc2e7f\n> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6345272\n> Bot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\n> Commit-Queue: Ivana Žužić <izuzic@google.com>\n> Owners-Override: Ivana Žužić <izuzic@google.com>\n> Cr-Commit-Position: refs/heads/main@{#1431383}\n\nBug: 41494473, 402655848\nNo-Presubmit: true\nNo-Tree-Checks: true\nNo-Try: true\nChange-Id: I675b3ec3cb1604730350ab94b54e6f0748d382d0\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346768\nReviewed-by: Ivana Žužić <izuzic@google.com>\nAuto-Submit: Yifan Luo <lyf@chromium.org>\nOwners-Override: Ivana Žužić <izuzic@google.com>\nBot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nCommit-Queue: Ivana Žužić <izuzic@google.com>\nCr-Commit-Position: refs/heads/main@{#1431404}",
+      "tree": {
+        "sha": "ec712a00d4f0f0431d3aae1450dc35ec5ea85a49",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/ec712a00d4f0f0431d3aae1450dc35ec5ea85a49"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/365e58b96ae568e6e8942695fcabc4f20da09567",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/365e58b96ae568e6e8942695fcabc4f20da09567",
+    "html_url": "https://github.com/chromium/chromium/commit/365e58b96ae568e6e8942695fcabc4f20da09567",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/365e58b96ae568e6e8942695fcabc4f20da09567/comments",
+    "author": {
+      "login": "iVanlIsh",
+      "id": 10909372,
+      "node_id": "MDQ6VXNlcjEwOTA5Mzcy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10909372?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/iVanlIsh",
+      "html_url": "https://github.com/iVanlIsh",
+      "followers_url": "https://api.github.com/users/iVanlIsh/followers",
+      "following_url": "https://api.github.com/users/iVanlIsh/following{/other_user}",
+      "gists_url": "https://api.github.com/users/iVanlIsh/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/iVanlIsh/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/iVanlIsh/subscriptions",
+      "organizations_url": "https://api.github.com/users/iVanlIsh/orgs",
+      "repos_url": "https://api.github.com/users/iVanlIsh/repos",
+      "events_url": "https://api.github.com/users/iVanlIsh/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/iVanlIsh/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "349b30b76115862c3988b07129f54bcbe4643375",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/349b30b76115862c3988b07129f54bcbe4643375",
+        "html_url": "https://github.com/chromium/chromium/commit/349b30b76115862c3988b07129f54bcbe4643375"
+      }
+    ]
+  },
+  {
+    "sha": "349b30b76115862c3988b07129f54bcbe4643375",
+    "node_id": "C_kwDOByyPPdoAKDM0OWIzMGI3NjExNTg2MmMzOTg4YjA3MTI5ZjU0YmNiZTQ2NDMzNzU",
+    "commit": {
+      "author": {
+        "name": "Yifan Luo",
+        "email": "lyf@chromium.org",
+        "date": "2025-03-12T10:23:58Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:23:58Z"
+      },
+      "message": "[Site Settings] Disable test\n\nBug: 402655848\nChange-Id: Ia68d4669d9f580e834f216247c569cbe6b2c74b7\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6347047\nReviewed-by: Ivana Žužić <izuzic@google.com>\nAuto-Submit: Yifan Luo <lyf@chromium.org>\nCommit-Queue: Yifan Luo <lyf@chromium.org>\nCommit-Queue: Ivana Žužić <izuzic@google.com>\nReviewed-by: Yifan Luo <lyf@chromium.org>\nOwners-Override: Ivana Žužić <izuzic@google.com>\nCr-Commit-Position: refs/heads/main@{#1431403}",
+      "tree": {
+        "sha": "26242988c56a69e2c540999e25ed2f128c0d23de",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/26242988c56a69e2c540999e25ed2f128c0d23de"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/349b30b76115862c3988b07129f54bcbe4643375",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/349b30b76115862c3988b07129f54bcbe4643375",
+    "html_url": "https://github.com/chromium/chromium/commit/349b30b76115862c3988b07129f54bcbe4643375",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/349b30b76115862c3988b07129f54bcbe4643375/comments",
+    "author": {
+      "login": "iVanlIsh",
+      "id": 10909372,
+      "node_id": "MDQ6VXNlcjEwOTA5Mzcy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10909372?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/iVanlIsh",
+      "html_url": "https://github.com/iVanlIsh",
+      "followers_url": "https://api.github.com/users/iVanlIsh/followers",
+      "following_url": "https://api.github.com/users/iVanlIsh/following{/other_user}",
+      "gists_url": "https://api.github.com/users/iVanlIsh/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/iVanlIsh/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/iVanlIsh/subscriptions",
+      "organizations_url": "https://api.github.com/users/iVanlIsh/orgs",
+      "repos_url": "https://api.github.com/users/iVanlIsh/repos",
+      "events_url": "https://api.github.com/users/iVanlIsh/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/iVanlIsh/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "0c78621a81ad5a4f30227098213a23a47d1aafec",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/0c78621a81ad5a4f30227098213a23a47d1aafec",
+        "html_url": "https://github.com/chromium/chromium/commit/0c78621a81ad5a4f30227098213a23a47d1aafec"
+      }
+    ]
+  },
+  {
+    "sha": "0c78621a81ad5a4f30227098213a23a47d1aafec",
+    "node_id": "C_kwDOByyPPdoAKDBjNzg2MjFhODFhZDVhNGYzMDIyNzA5ODIxM2EyM2E0N2QxYWFmZWM",
+    "commit": {
+      "author": {
+        "name": "Abdelrahman Eed",
+        "email": "abdoeed@google.com",
+        "date": "2025-03-12T10:22:32Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:22:32Z"
+      },
+      "message": "[PointerLockOnAndroid] Add auto releasing the pointer and route capture change event to blink\n\nChanges:\n- Listen on the capturing view focus changes and release the pointer when it goes out of focus\n- Route the `onPointerCaptureChange` to WindowAndroid & RWHVA to update the capturing view state accordingly\n\nBug: b:395839333\nChange-Id: Ifa62f8aedf0cc4eba52655358c78e49f3f9bad78\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6317445\nReviewed-by: Mustaq Ahmed <mustaq@chromium.org>\nCommit-Queue: Abdelrahman Eed <abdoeed@google.com>\nReviewed-by: Bo Liu <boliu@chromium.org>\nReviewed-by: Robert Flack <flackr@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431402}",
+      "tree": {
+        "sha": "08d4932209ab1bb6cf9bcac50e808fd5fa01bfa0",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/08d4932209ab1bb6cf9bcac50e808fd5fa01bfa0"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/0c78621a81ad5a4f30227098213a23a47d1aafec",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/0c78621a81ad5a4f30227098213a23a47d1aafec",
+    "html_url": "https://github.com/chromium/chromium/commit/0c78621a81ad5a4f30227098213a23a47d1aafec",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/0c78621a81ad5a4f30227098213a23a47d1aafec/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "335f039762e05639ba4f0efc00022b36a631e259",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/335f039762e05639ba4f0efc00022b36a631e259",
+        "html_url": "https://github.com/chromium/chromium/commit/335f039762e05639ba4f0efc00022b36a631e259"
+      }
+    ]
+  },
+  {
+    "sha": "335f039762e05639ba4f0efc00022b36a631e259",
+    "node_id": "C_kwDOByyPPdoAKDMzNWYwMzk3NjJlMDU2MzliYTRmMGVmYzAwMDIyYjM2YTYzMWUyNTk",
+    "commit": {
+      "author": {
+        "name": "Rune Lillesveen",
+        "email": "futhark@chromium.org",
+        "date": "2025-03-12T10:22:09Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:22:09Z"
+      },
+      "message": "Slot invalidation for sibling-index()/sibling-count()\n\nWhen the slot attribute changes for a shadow host child, other shadow\nhost children may have their sibling-*() function evaluation changed.\n\nNote that changing the name attribute of slots does not require\ninvalidation as the elements slotted to the changed slot either all\nstarts being slotted there, or all stops being slotted. In both cases\nthe computed style is either all reset to nullptr or computed as a\nresult of the re-assignment.\n\nBug: 40282719\n\nChange-Id: I554bc2f92a8bfbbe7272c78f819e87c8b9daefaf\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6333609\nCommit-Queue: Rune Lillesveen <futhark@chromium.org>\nReviewed-by: Steinar H Gunderson <sesse@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431401}",
+      "tree": {
+        "sha": "42c214896f2d369db8d28f120a939eb29ee5eafe",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/42c214896f2d369db8d28f120a939eb29ee5eafe"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/335f039762e05639ba4f0efc00022b36a631e259",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/335f039762e05639ba4f0efc00022b36a631e259",
+    "html_url": "https://github.com/chromium/chromium/commit/335f039762e05639ba4f0efc00022b36a631e259",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/335f039762e05639ba4f0efc00022b36a631e259/comments",
+    "author": {
+      "login": "lilles",
+      "id": 889557,
+      "node_id": "MDQ6VXNlcjg4OTU1Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/889557?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lilles",
+      "html_url": "https://github.com/lilles",
+      "followers_url": "https://api.github.com/users/lilles/followers",
+      "following_url": "https://api.github.com/users/lilles/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lilles/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lilles/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lilles/subscriptions",
+      "organizations_url": "https://api.github.com/users/lilles/orgs",
+      "repos_url": "https://api.github.com/users/lilles/repos",
+      "events_url": "https://api.github.com/users/lilles/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lilles/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "a3df36597e5e17f82c881a0e75a1d597f7f404a9",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/a3df36597e5e17f82c881a0e75a1d597f7f404a9",
+        "html_url": "https://github.com/chromium/chromium/commit/a3df36597e5e17f82c881a0e75a1d597f7f404a9"
+      }
+    ]
+  },
+  {
+    "sha": "a3df36597e5e17f82c881a0e75a1d597f7f404a9",
+    "node_id": "C_kwDOByyPPdoAKGEzZGYzNjU5N2U1ZTE3ZjgyYzg4MWEwZTc1YTFkNTk3ZjdmNDA0YTk",
+    "commit": {
+      "author": {
+        "name": "chromium-autoroll",
+        "email": "chromium-autoroll@skia-public.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:20:12Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:20:12Z"
+      },
+      "message": "Roll Chrome Android ARM64 PGO Profile\n\nRoll Chrome Android ARM64 PGO profile from chrome-android64-main-1741765952-90fe0dd7925d8552f88443fa7982f848278afe8b-ee7c40f95174872ce8b2b698974bea4b0f886386.profdata to chrome-android64-main-1741768938-b417e1eba51bd57041701bd43cdeec67f0cefbea-a166761b8eaf3b90e13cecfcb4aecf6ffd7d6d68.profdata\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://autoroll.skia.org/r/pgo-android-arm64-chromium\nPlease CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nTbr: pgo-profile-sheriffs@google.com\nMerge-Approval-Bypass: Chrome autoroller\nChange-Id: I8fe7b011df08cda3383639ce52180843fa26ebeb\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6344849\nBot-Commit: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCommit-Queue: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431400}",
+      "tree": {
+        "sha": "bafe3b580a5c519d64089974bfd43c7d1624dacd",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/bafe3b580a5c519d64089974bfd43c7d1624dacd"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/a3df36597e5e17f82c881a0e75a1d597f7f404a9",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/a3df36597e5e17f82c881a0e75a1d597f7f404a9",
+    "html_url": "https://github.com/chromium/chromium/commit/a3df36597e5e17f82c881a0e75a1d597f7f404a9",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/a3df36597e5e17f82c881a0e75a1d597f7f404a9/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "88777abe701470c95f67a1ee8aed61c88d3e83a0",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/88777abe701470c95f67a1ee8aed61c88d3e83a0",
+        "html_url": "https://github.com/chromium/chromium/commit/88777abe701470c95f67a1ee8aed61c88d3e83a0"
+      }
+    ]
+  },
+  {
+    "sha": "88777abe701470c95f67a1ee8aed61c88d3e83a0",
+    "node_id": "C_kwDOByyPPdoAKDg4Nzc3YWJlNzAxNDcwYzk1ZjY3YTFlZThhZWQ2MWM4OGQzZTgzYTA",
+    "commit": {
+      "author": {
+        "name": "Yifan Luo",
+        "email": "lyf@chromium.org",
+        "date": "2025-03-12T10:16:09Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:16:09Z"
+      },
+      "message": "Revert \"[Gardener] Revert \"[Site Settings] Add icon to radio buttons on Android.\"\"\n\nThis reverts commit 34e62808fe4fec8c60a9650cef1f95a1e9b95b45.\n\nReason for revert: Decided to disable test other than revert cls.\n\nOriginal change's description:\n> [Gardener] Revert \"[Site Settings] Add icon to radio buttons on Android.\"\n>\n> This reverts commit b97841327f9d4cebf668c87bc6aacf1faf7d4c2c.\n>\n> Reason for revert: crrev.com/c/6335832 is causing issues with\n> testAllowGeolocation test. This CL blocks reverting it.\n> See crbug.com/402655848 for details.\n>\n> Original change's description:\n> > [Site Settings] Add icon to radio buttons on Android.\n> >\n> > Add allow/block icons to each radio button for permission site\n> > setting's radio button groups on Android.\n> >\n> > UI design: go/site-settings-ui-design\n> >\n> > Binary-Size: Size increase is unavoidable. (Introduced a bench of new icons for site settings)\n> > Bug: 41494473\n> > Change-Id: I25e7f99133364769ab67e7bb57d5e65e73609e8b\n> > Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6317567\n> > Commit-Queue: Yifan Luo <lyf@chromium.org>\n> > Reviewed-by: Ravjit Uppal <ravjit@chromium.org>\n> > Cr-Commit-Position: refs/heads/main@{#1430902}\n>\n> Bug: 41494473, 402655848\n> No-Presubmit: true\n> No-Tree-Checks: true\n> No-Try: true\n> Change-Id: I4812468ea2bbf4f43e8eb4ec5ea182008c563638\n> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6347196\n> Bot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\n> Owners-Override: Ivana Žužić <izuzic@google.com>\n> Reviewed-by: Ivana Žužić <izuzic@google.com>\n> Commit-Queue: Ivana Žužić <izuzic@google.com>\n> Cr-Commit-Position: refs/heads/main@{#1431385}\n\nBug: 41494473, 402655848\nNo-Presubmit: true\nNo-Tree-Checks: true\nNo-Try: true\nChange-Id: I95cdcd8d463c62fe75effe43f4c7b7f429faa159\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346589\nCommit-Queue: Ivana Žužić <izuzic@google.com>\nBot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nAuto-Submit: Yifan Luo <lyf@chromium.org>\nOwners-Override: Ivana Žužić <izuzic@google.com>\nReviewed-by: Ivana Žužić <izuzic@google.com>\nCr-Commit-Position: refs/heads/main@{#1431399}",
+      "tree": {
+        "sha": "5029b5c730e1ef7e05981dd21121d491bc3fb514",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/5029b5c730e1ef7e05981dd21121d491bc3fb514"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/88777abe701470c95f67a1ee8aed61c88d3e83a0",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/88777abe701470c95f67a1ee8aed61c88d3e83a0",
+    "html_url": "https://github.com/chromium/chromium/commit/88777abe701470c95f67a1ee8aed61c88d3e83a0",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/88777abe701470c95f67a1ee8aed61c88d3e83a0/comments",
+    "author": {
+      "login": "iVanlIsh",
+      "id": 10909372,
+      "node_id": "MDQ6VXNlcjEwOTA5Mzcy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10909372?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/iVanlIsh",
+      "html_url": "https://github.com/iVanlIsh",
+      "followers_url": "https://api.github.com/users/iVanlIsh/followers",
+      "following_url": "https://api.github.com/users/iVanlIsh/following{/other_user}",
+      "gists_url": "https://api.github.com/users/iVanlIsh/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/iVanlIsh/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/iVanlIsh/subscriptions",
+      "organizations_url": "https://api.github.com/users/iVanlIsh/orgs",
+      "repos_url": "https://api.github.com/users/iVanlIsh/repos",
+      "events_url": "https://api.github.com/users/iVanlIsh/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/iVanlIsh/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "f398da8252b7372d9a768015c968bb5a69424d9f",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/f398da8252b7372d9a768015c968bb5a69424d9f",
+        "html_url": "https://github.com/chromium/chromium/commit/f398da8252b7372d9a768015c968bb5a69424d9f"
+      }
+    ]
+  },
+  {
+    "sha": "f398da8252b7372d9a768015c968bb5a69424d9f",
+    "node_id": "C_kwDOByyPPdoAKGYzOThkYTgyNTJiNzM3MmQ5YTc2ODAxNWM5NjhiYjVhNjk0MjRkOWY",
+    "commit": {
+      "author": {
+        "name": "ginnnnnnny",
+        "email": "ginnyhuang@chromium.org",
+        "date": "2025-03-12T10:15:55Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:15:55Z"
+      },
+      "message": "[iOS] Fix vertical padding between the feed header and the first cell\n\nAs requested by UX, this CL removes the padding between the first\nDiscover cell and the feed header when the feed header does NOT contain\nthe \"Discover / Following\" toggle. Now all the space between the label\nand the feed article is the top part of the feed cell.\n\n- Before: https://screenshot.googleplex.com/BHgZg7Zmoff4AFf.png\n- After:https://screenshot.googleplex.com/4pb4yRMQWpUru9c.png\n- After (with feed top section):\n    https://screenshot.googleplex.com/6TtCTTc3iMJLD8f.png\n\nFixed: 402549406\nChange-Id: Icad4da87b5466013078e8c730cf90698b72d81f8\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6345913\nReviewed-by: Gauthier Ambard <gambard@chromium.org>\nCommit-Queue: Gauthier Ambard <gambard@chromium.org>\nAuto-Submit: Ginny Huang <ginnyhuang@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431398}",
+      "tree": {
+        "sha": "d11d5d43f1b16fa51597833989035edff53964d3",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/d11d5d43f1b16fa51597833989035edff53964d3"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/f398da8252b7372d9a768015c968bb5a69424d9f",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/f398da8252b7372d9a768015c968bb5a69424d9f",
+    "html_url": "https://github.com/chromium/chromium/commit/f398da8252b7372d9a768015c968bb5a69424d9f",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/f398da8252b7372d9a768015c968bb5a69424d9f/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26",
+        "html_url": "https://github.com/chromium/chromium/commit/c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26"
+      }
+    ]
+  },
+  {
+    "sha": "c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26",
+    "node_id": "C_kwDOByyPPdoAKGM2ZTVhYzZjZDM1ZmE4MDk1ZjJmNjdlYzEwYzNmZGRmNDNlYjBjMjY",
+    "commit": {
+      "author": {
+        "name": "Chromium WPT Sync",
+        "email": "wpt-autoroller@chops-service-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:13:28Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:13:28Z"
+      },
+      "message": "Update `TestExpectations` with bugs filed for crrev.com/c/6343697\n\nR=rubber-stamper@appspot.gserviceaccount.com\n\nBug: 402570321\nChange-Id: I7c2bc7a302ee7dc16a75e6097fbf18402cf90bc2\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6347356\nAuto-Submit: WPT Autoroller <wpt-autoroller@chops-service-accounts.iam.gserviceaccount.com>\nBot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nCommit-Queue: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431397}",
+      "tree": {
+        "sha": "5f958a81a98d630c8fb195e76597f263b0c3809a",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/5f958a81a98d630c8fb195e76597f263b0c3809a"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26",
+    "html_url": "https://github.com/chromium/chromium/commit/c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/c6e5ac6cd35fa8095f2f67ec10c3fddf43eb0c26/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "4a02e435e79782d927d9639aa6ad59ec3e6444c6",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/4a02e435e79782d927d9639aa6ad59ec3e6444c6",
+        "html_url": "https://github.com/chromium/chromium/commit/4a02e435e79782d927d9639aa6ad59ec3e6444c6"
+      }
+    ]
+  },
+  {
+    "sha": "4a02e435e79782d927d9639aa6ad59ec3e6444c6",
+    "node_id": "C_kwDOByyPPdoAKDRhMDJlNDM1ZTc5NzgyZDkyN2Q5NjM5YWE2YWQ1OWVjM2U2NDQ0YzY",
+    "commit": {
+      "author": {
+        "name": "Byron Lee",
+        "email": "byronlee@chromium.org",
+        "date": "2025-03-12T10:08:37Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:08:37Z"
+      },
+      "message": "[Telemetry] Update PWA origin for Google extension\n\nReduced PWA domain coverage for testing purposes only.\n\nBug: 391534038\nTest: unit_tests \\\n      --gtest_filter=\"*ExtensionManifestChromeOSSystemExtensionTest*\"\nTest: unit_tests --gtest_filter=\"*ChromeOSSystemExtensionInfo*\"\nTest: unit_tests --gtest_filter=\"*ApiGuardDelegateTest*\"\nTest: browser_tests -ozone-platform=headless \\\n      --gtest_filter=\"*TelemetryExtension*\"\nTest: tast run ${DUT_IP} telemetryextension.PlatformAPI*\n\nChange-Id: Ife1faabc6176d11249c2b7cbbeedb2cb3912e29e\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6189535\nReviewed-by: Chung-sheng Wu <chungsheng@google.com>\nCommit-Queue: Byron Lee <byronlee@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431396}",
+      "tree": {
+        "sha": "d5179810257b04ad6ce090d6c9d290fe21f01732",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/d5179810257b04ad6ce090d6c9d290fe21f01732"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/4a02e435e79782d927d9639aa6ad59ec3e6444c6",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/4a02e435e79782d927d9639aa6ad59ec3e6444c6",
+    "html_url": "https://github.com/chromium/chromium/commit/4a02e435e79782d927d9639aa6ad59ec3e6444c6",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/4a02e435e79782d927d9639aa6ad59ec3e6444c6/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "af7af4cdd5efd0e238904bf88f86b63009c6a687",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/af7af4cdd5efd0e238904bf88f86b63009c6a687",
+        "html_url": "https://github.com/chromium/chromium/commit/af7af4cdd5efd0e238904bf88f86b63009c6a687"
+      }
+    ]
+  },
+  {
+    "sha": "af7af4cdd5efd0e238904bf88f86b63009c6a687",
+    "node_id": "C_kwDOByyPPdoAKGFmN2FmNGNkZDVlZmQwZTIzODkwNGJmODhmODZiNjMwMDljNmE2ODc",
+    "commit": {
+      "author": {
+        "name": "chromium-internal-autoroll",
+        "email": "chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:06:26Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:06:26Z"
+      },
+      "message": "Roll clank/internal/apps from 09abc1f42977 to cbe7e3a47dc6 (1 revision)\n\nhttps://chrome-internal.googlesource.com/clank/internal/apps.git/+log/09abc1f42977..cbe7e3a47dc6\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://skia-autoroll.corp.goog/r/clank-apps-chromium-autoroll\nPlease CC chrome-brapp-engprod@google.com,izuzic@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nBug: None\nTbr: izuzic@google.com\nNo-Try: true\nChange-Id: I189906407f505eacfacd4d8a2f5a736aa84ece1d\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6347318\nCommit-Queue: chromium-internal-autoroll <chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com>\nBot-Commit: chromium-internal-autoroll <chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431395}",
+      "tree": {
+        "sha": "fb034369aeec537618c2d44b9be47f0ee3ef9748",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/fb034369aeec537618c2d44b9be47f0ee3ef9748"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/af7af4cdd5efd0e238904bf88f86b63009c6a687",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/af7af4cdd5efd0e238904bf88f86b63009c6a687",
+    "html_url": "https://github.com/chromium/chromium/commit/af7af4cdd5efd0e238904bf88f86b63009c6a687",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/af7af4cdd5efd0e238904bf88f86b63009c6a687/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e",
+        "html_url": "https://github.com/chromium/chromium/commit/b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e"
+      }
+    ]
+  },
+  {
+    "sha": "b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e",
+    "node_id": "C_kwDOByyPPdoAKGI2ZmU5ZmJlYjhlZjYwZGRjM2E5OTUzZGY1ZWU5YTkzMDE5NTk0NGU",
+    "commit": {
+      "author": {
+        "name": "Maria Kazinova",
+        "email": "kazinova@google.com",
+        "date": "2025-03-12T10:00:12Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T10:00:12Z"
+      },
+      "message": "Clean up UsernameFirstFlowWithIntermediateValuesVoting feature\n\nThe feature was launched in December 2024, time to clean it up.\n\nFixed: 394329877, 40925827\nChange-Id: Ie685158401ba2ec71617b92e435961d74cd97f7e\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6343456\nAuto-Submit: Maria Kazinova <kazinova@google.com>\nReviewed-by: Vasilii Sukhanov <vasilii@chromium.org>\nCommit-Queue: Vasilii Sukhanov <vasilii@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431394}",
+      "tree": {
+        "sha": "26ff4d8a1649967ce078224de892105081fbd671",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/26ff4d8a1649967ce078224de892105081fbd671"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e",
+    "html_url": "https://github.com/chromium/chromium/commit/b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/b6fe9fbeb8ef60ddc3a9953df5ee9a930195944e/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "64e9b5619b9edff89c9aa5f9497e413a7f753df3",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/64e9b5619b9edff89c9aa5f9497e413a7f753df3",
+        "html_url": "https://github.com/chromium/chromium/commit/64e9b5619b9edff89c9aa5f9497e413a7f753df3"
+      }
+    ]
+  },
+  {
+    "sha": "64e9b5619b9edff89c9aa5f9497e413a7f753df3",
+    "node_id": "C_kwDOByyPPdoAKDY0ZTliNTYxOWI5ZWRmZjg5YzlhYTVmOTQ5N2U0MTNhN2Y3NTNkZjM",
+    "commit": {
+      "author": {
+        "name": "chromium-autoroll",
+        "email": "chromium-autoroll@skia-public.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:59:27Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:59:27Z"
+      },
+      "message": "Roll Skia from 3ab1bc8d08fd to f2fc833dee54 (1 revision)\n\nhttps://skia.googlesource.com/skia.git/+log/3ab1bc8d08fd..f2fc833dee54\n\n2025-03-12 skia-autoroll@skia-public.iam.gserviceaccount.com Roll ANGLE from f38a081cdea4 to bdff6ade3987 (13 revisions)\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://autoroll.skia.org/r/skia-autoroll\nPlease CC danieldilan@google.com,skiabot@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo file a bug in Skia: https://bugs.chromium.org/p/skia/issues/entry\nTo file a bug in Chromium: https://bugs.chromium.org/p/chromium/issues/entry\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nCq-Include-Trybots: luci.chromium.try:android_optional_gpu_tests_rel;luci.chromium.try:gpu-fyi-cq-android-arm64;luci.chromium.try:linux-blink-rel;luci.chromium.try:linux-chromeos-compile-dbg;luci.chromium.try:linux_optional_gpu_tests_rel;luci.chromium.try:mac_optional_gpu_tests_rel;luci.chromium.try:win_optional_gpu_tests_rel\nCq-Do-Not-Cancel-Tryjobs: true\nBug: None\nTbr: danieldilan@google.com\nChange-Id: I341a71a8b82f21de37b1f67a19349417eac80b8c\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346279\nCommit-Queue: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nBot-Commit: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431393}",
+      "tree": {
+        "sha": "b3fff5764ef9fb9b0ccacec3e4ee519b8991d50f",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/b3fff5764ef9fb9b0ccacec3e4ee519b8991d50f"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/64e9b5619b9edff89c9aa5f9497e413a7f753df3",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/64e9b5619b9edff89c9aa5f9497e413a7f753df3",
+    "html_url": "https://github.com/chromium/chromium/commit/64e9b5619b9edff89c9aa5f9497e413a7f753df3",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/64e9b5619b9edff89c9aa5f9497e413a7f753df3/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "fe2c2621d729c8cb22f94e3011b7f74334f96bed",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/fe2c2621d729c8cb22f94e3011b7f74334f96bed",
+        "html_url": "https://github.com/chromium/chromium/commit/fe2c2621d729c8cb22f94e3011b7f74334f96bed"
+      }
+    ]
+  },
+  {
+    "sha": "fe2c2621d729c8cb22f94e3011b7f74334f96bed",
+    "node_id": "C_kwDOByyPPdoAKGZlMmMyNjIxZDcyOWM4Y2IyMmY5NGUzMDExYjdmNzQzMzRmOTZiZWQ",
+    "commit": {
+      "author": {
+        "name": "Jonathan Lee",
+        "email": "jonathanjlee@google.com",
+        "date": "2025-03-12T09:59:01Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:59:01Z"
+      },
+      "message": "[ios] Remove misleading log about enrollment token init error\n\n`InitEnrollmentErrorOption()` is always called to decide error handling\nbehavior, even in successful cases [0].\n\n[0]: https://source.chromium.org/chromium/chromium/src/+/main:components/enterprise/browser/controller/browser_dm_token_storage.cc;l=218-223;drc=ccea09835fd67b49ef0d4aed8dda1a5f22a409c8;bpv=0;bpt=0\n\nBug: 374052715\nChange-Id: Iad7452e7dedf04f55d571c61c99546af707b4aca\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6344455\nReviewed-by: Vincent Boisselle <vincb@google.com>\nCommit-Queue: Vincent Boisselle <vincb@google.com>\nAuto-Submit: Jonathan Lee <jonathanjlee@google.com>\nCr-Commit-Position: refs/heads/main@{#1431392}",
+      "tree": {
+        "sha": "a2d5c69ee1d33097b25f41630dcc5c15a80d4f03",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/a2d5c69ee1d33097b25f41630dcc5c15a80d4f03"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/fe2c2621d729c8cb22f94e3011b7f74334f96bed",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/fe2c2621d729c8cb22f94e3011b7f74334f96bed",
+    "html_url": "https://github.com/chromium/chromium/commit/fe2c2621d729c8cb22f94e3011b7f74334f96bed",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/fe2c2621d729c8cb22f94e3011b7f74334f96bed/comments",
+    "author": {
+      "login": "jonathan-j-lee",
+      "id": 16431277,
+      "node_id": "MDQ6VXNlcjE2NDMxMjc3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16431277?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jonathan-j-lee",
+      "html_url": "https://github.com/jonathan-j-lee",
+      "followers_url": "https://api.github.com/users/jonathan-j-lee/followers",
+      "following_url": "https://api.github.com/users/jonathan-j-lee/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jonathan-j-lee/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jonathan-j-lee/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jonathan-j-lee/subscriptions",
+      "organizations_url": "https://api.github.com/users/jonathan-j-lee/orgs",
+      "repos_url": "https://api.github.com/users/jonathan-j-lee/repos",
+      "events_url": "https://api.github.com/users/jonathan-j-lee/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jonathan-j-lee/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "4a3a35efa6d10b715ed836f941fdd10b0b34220a",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/4a3a35efa6d10b715ed836f941fdd10b0b34220a",
+        "html_url": "https://github.com/chromium/chromium/commit/4a3a35efa6d10b715ed836f941fdd10b0b34220a"
+      }
+    ]
+  },
+  {
+    "sha": "4a3a35efa6d10b715ed836f941fdd10b0b34220a",
+    "node_id": "C_kwDOByyPPdoAKDRhM2EzNWVmYTZkMTBiNzE1ZWQ4MzZmOTQxZmRkMTBiMGIzNDIyMGE",
+    "commit": {
+      "author": {
+        "name": "chromium-autoroll",
+        "email": "chromium-autoroll@skia-public.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:57:47Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:57:47Z"
+      },
+      "message": "Roll DevTools Frontend from 9b81de9d87d6 to 3a6ad56aa5a4 (4 revisions)\n\nhttps://chromium.googlesource.com/devtools/devtools-frontend.git/+log/9b81de9d87d6..3a6ad56aa5a4\n\n2025-03-12 bmeurer@chromium.org [performance_monitor] Fix alignment of indicator values.\n2025-03-12 bmeurer@chromium.org [network] Add missing M3U media types.\n2025-03-12 kimanh@chromium.org [GM3Restyling] Use details element to show details in Infobar\n2025-03-12 dsv@chromium.org [datagrid] Fix propagation of text content updates \n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://autoroll.skia.org/r/devtools-frontend-chromium\nPlease CC devtools-waterfall-sheriff-onduty@rotations.google.com,liviurau@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nBug: chromium:325443174,chromium:402076495\nChange-Id: I38467790c37f7d1d0d4f6f076654244ec37a3f94\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346728\nCommit-Queue: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nBot-Commit: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431391}",
+      "tree": {
+        "sha": "ccda9116b65b7ee35a55c5fc1f3829b1de88308a",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/ccda9116b65b7ee35a55c5fc1f3829b1de88308a"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/4a3a35efa6d10b715ed836f941fdd10b0b34220a",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/4a3a35efa6d10b715ed836f941fdd10b0b34220a",
+    "html_url": "https://github.com/chromium/chromium/commit/4a3a35efa6d10b715ed836f941fdd10b0b34220a",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/4a3a35efa6d10b715ed836f941fdd10b0b34220a/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "666e90a3a8789494b20d9c5ccaa37a7fc9402862",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/666e90a3a8789494b20d9c5ccaa37a7fc9402862",
+        "html_url": "https://github.com/chromium/chromium/commit/666e90a3a8789494b20d9c5ccaa37a7fc9402862"
+      }
+    ]
+  },
+  {
+    "sha": "666e90a3a8789494b20d9c5ccaa37a7fc9402862",
+    "node_id": "C_kwDOByyPPdoAKDY2NmU5MGEzYTg3ODk0OTRiMjBkOWM1Y2NhYTM3YTdmYzk0MDI4NjI",
+    "commit": {
+      "author": {
+        "name": "Kent Tamura",
+        "email": "tkent@chromium.org",
+        "date": "2025-03-12T09:53:35Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:53:35Z"
+      },
+      "message": "Simplify ShapeResultBloberizer::FillGlyphs::FillGlyphs()\n\n* Add local variables to avoid frequent data member accesses\n* Narrow the scope of `advance`.\n* Use `base::Reversed()` and range-based `for`.\n\nThis CL has no behavior changes.\n\nChange-Id: Ib9181d1c6ce387339451fd580259bedba4994b93\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6342229\nCommit-Queue: Koji Ishii <kojii@chromium.org>\nReviewed-by: Koji Ishii <kojii@chromium.org>\nAuto-Submit: Kent Tamura <tkent@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431390}",
+      "tree": {
+        "sha": "211765f3c2a86d0b1c0077159d93f1677e79dccb",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/211765f3c2a86d0b1c0077159d93f1677e79dccb"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/666e90a3a8789494b20d9c5ccaa37a7fc9402862",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/666e90a3a8789494b20d9c5ccaa37a7fc9402862",
+    "html_url": "https://github.com/chromium/chromium/commit/666e90a3a8789494b20d9c5ccaa37a7fc9402862",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/666e90a3a8789494b20d9c5ccaa37a7fc9402862/comments",
+    "author": {
+      "login": "tkent-google",
+      "id": 12651367,
+      "node_id": "MDQ6VXNlcjEyNjUxMzY3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12651367?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/tkent-google",
+      "html_url": "https://github.com/tkent-google",
+      "followers_url": "https://api.github.com/users/tkent-google/followers",
+      "following_url": "https://api.github.com/users/tkent-google/following{/other_user}",
+      "gists_url": "https://api.github.com/users/tkent-google/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/tkent-google/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/tkent-google/subscriptions",
+      "organizations_url": "https://api.github.com/users/tkent-google/orgs",
+      "repos_url": "https://api.github.com/users/tkent-google/repos",
+      "events_url": "https://api.github.com/users/tkent-google/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/tkent-google/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "f5a831f1117ed53e52bbf819d70bea4ebea9a435",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/f5a831f1117ed53e52bbf819d70bea4ebea9a435",
+        "html_url": "https://github.com/chromium/chromium/commit/f5a831f1117ed53e52bbf819d70bea4ebea9a435"
+      }
+    ]
+  },
+  {
+    "sha": "f5a831f1117ed53e52bbf819d70bea4ebea9a435",
+    "node_id": "C_kwDOByyPPdoAKGY1YTgzMWYxMTE3ZWQ1M2U1MmJiZjgxOWQ3MGJlYTRlYmVhOWE0MzU",
+    "commit": {
+      "author": {
+        "name": "Christian Xu",
+        "email": "christianxu@google.com",
+        "date": "2025-03-12T09:47:32Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:47:32Z"
+      },
+      "message": "[iOS][OR] Rename onThumbnailRemoveDuringEdit\n\nRename onThumbnailRemovedDuringEdit to onUserRemoveThumbnail to match\nthe other methods.\n\nBug: None\nChange-Id: I25e291bd78818d12d9d82bab8f952048b1809762\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6340773\nReviewed-by: Ameur Hosni <ameurhosni@google.com>\nAuto-Submit: Christian Xu <christianxu@chromium.org>\nCommit-Queue: Ameur Hosni <ameurhosni@google.com>\nCr-Commit-Position: refs/heads/main@{#1431389}",
+      "tree": {
+        "sha": "868bf9da0879fa3e193b1e69f698c053bbd10798",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/868bf9da0879fa3e193b1e69f698c053bbd10798"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/f5a831f1117ed53e52bbf819d70bea4ebea9a435",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/f5a831f1117ed53e52bbf819d70bea4ebea9a435",
+    "html_url": "https://github.com/chromium/chromium/commit/f5a831f1117ed53e52bbf819d70bea4ebea9a435",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/f5a831f1117ed53e52bbf819d70bea4ebea9a435/comments",
+    "author": {
+      "login": "ChristianXuG",
+      "id": 105302099,
+      "node_id": "U_kgDOBkbIUw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/105302099?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ChristianXuG",
+      "html_url": "https://github.com/ChristianXuG",
+      "followers_url": "https://api.github.com/users/ChristianXuG/followers",
+      "following_url": "https://api.github.com/users/ChristianXuG/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ChristianXuG/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ChristianXuG/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ChristianXuG/subscriptions",
+      "organizations_url": "https://api.github.com/users/ChristianXuG/orgs",
+      "repos_url": "https://api.github.com/users/ChristianXuG/repos",
+      "events_url": "https://api.github.com/users/ChristianXuG/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ChristianXuG/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a",
+        "html_url": "https://github.com/chromium/chromium/commit/8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a"
+      }
+    ]
+  },
+  {
+    "sha": "8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a",
+    "node_id": "C_kwDOByyPPdoAKDhhNWE0M2FkMGZhMmNmZmYyNTIzYTI3YmNkOWM0ZWYxNWFjYmRkMWE",
+    "commit": {
+      "author": {
+        "name": "Tsuyoshi Horo",
+        "email": "horo@chromium.org",
+        "date": "2025-03-12T09:46:19Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:46:19Z"
+      },
+      "message": "Introduce RendererSideContentDecoding feature\n\nThis CL adds a feature flag, RendererSideContentDecoding and\nchrome://flags/#renderer-side-content-decoding, to control whether\ncontent decoding (e.g. gzip, brotli, zstd) is performed in the renderer\nprocess or in the network service.\n\nWhen the feature is enabled, the network service sends the compressed\nHTTP response body to the renderer process, and the renderer process is\nresponsible for decoding the body.  When the feature is disabled, the\nnetwork service handles content decoding, and the renderer process\nreceives the decoded body.\n\nImplementation details:\n\n* In the network service:\n  - This CL introduces a client_side_content_decoding_enabled flag in\n    network::ResourceRequest. This flag is passed to net::URLRequest.\n  - If this flag is enabled, URLRequestHttpJob will not perform the\n    content decoding. It returns the original SourceStream. So the\n    renderer process will receive the encoded body.\n  - This CL also introduces a client_side_content_decoding_types array\n    in URLResponseHead. This is filled by URLLoader::BuildResponseHead()\n    when the client_side_content_decoding_enabled was enabled.\n* For navigation requests:\n  - In the browser process, when CreateResourceRequestForNavigation()\n    method creates a network::ResourceRequest, the\n    client_side_content_decoding_enabled is set to true if\n    RendererSideContentDecoding feature is enabled.\n  - In the renderer process, ContentDecodingInterceptor will intercept\n    the response in RenderFrameImpl::CommitNavigation() to decode the\n    body when client_side_content_decoding_types of the URLResponseHead\n    is not empty.\n* For subresource requests:\n  - In the renderer process, when the feature is enabled,\n    ResourceRequestSender sets the client_side_content_decoding_enabled\n    flag, and insert a ContentDecodingURLLoaderThrottle to the beginning\n    of the throttle chain to handle decoding the response before other\n    throttles process it.\n* For Service Worker Navigation Preload requests:\n  - In the browser process, the client_side_content_decoding_enabled is\n    set by the CreateResourceRequestForNavigation() method when the\n    feature is enabled.\n  - In the renderer process, NavigationPreloadRequest's\n    OnReceiveResponse() method creates a ContentDecodingInterceptor when\n    client_side_content_decoding_types of the URLResponseHead is\n    not empty to decode the body.\n\nBug: 391950057\nFuchsia-Binary-Size: Size increase is unavoidable\nChange-Id: I6c6cb6fcd42a9590891a3ec2de9b09efe0417db1\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6332431\nReviewed-by: Takashi Toyoshima <toyoshim@chromium.org>\nReviewed-by: Kentaro Hara <haraken@chromium.org>\nReviewed-by: Koji Ishii <kojii@chromium.org>\nCommit-Queue: Tsuyoshi Horo <horo@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431388}",
+      "tree": {
+        "sha": "1c0cec61733b7c55257978ccaed4dfdcaa1f1357",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/1c0cec61733b7c55257978ccaed4dfdcaa1f1357"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a",
+    "html_url": "https://github.com/chromium/chromium/commit/8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/8a5a43ad0fa2cfff2523a27bcd9c4ef15acbdd1a/comments",
+    "author": {
+      "login": "horo-t",
+      "id": 7216718,
+      "node_id": "MDQ6VXNlcjcyMTY3MTg=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7216718?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/horo-t",
+      "html_url": "https://github.com/horo-t",
+      "followers_url": "https://api.github.com/users/horo-t/followers",
+      "following_url": "https://api.github.com/users/horo-t/following{/other_user}",
+      "gists_url": "https://api.github.com/users/horo-t/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/horo-t/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/horo-t/subscriptions",
+      "organizations_url": "https://api.github.com/users/horo-t/orgs",
+      "repos_url": "https://api.github.com/users/horo-t/repos",
+      "events_url": "https://api.github.com/users/horo-t/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/horo-t/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "5702f88bea17ea19e9dba9b5915186e010c14de3",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/5702f88bea17ea19e9dba9b5915186e010c14de3",
+        "html_url": "https://github.com/chromium/chromium/commit/5702f88bea17ea19e9dba9b5915186e010c14de3"
+      }
+    ]
+  },
+  {
+    "sha": "5702f88bea17ea19e9dba9b5915186e010c14de3",
+    "node_id": "C_kwDOByyPPdoAKDU3MDJmODhiZWExN2VhMTllOWRiYTliNTkxNTE4NmUwMTBjMTRkZTM",
+    "commit": {
+      "author": {
+        "name": "chromium-internal-autoroll",
+        "email": "chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:43:20Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:43:20Z"
+      },
+      "message": "Roll Boca App from TguU4xFxM5ZuPQQI_... to 4xOCyykdFVwYMsda5...\n\nRelease_Notes: http://go/boca_app-x20/relnotes/Main/boca_app_202503120100_RC00.html\n\nhttps://chrome-infra-packages.appspot.com/p/chromeos_internal/apps/boca_app/app/+/4xOCyykdFVwYMsda56daOg5klDxM7eK9qkkHgyVZoGgC\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://skia-autoroll.corp.goog/r/boca-app-chromium\nPlease CC aprilzhou@google.com,bzielinski@google.com,cros-edu-eng@google.com,dorianbrandon@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo file a bug in Boca App: https://b.corp.google.com/issues?q=status:open%20componentid:1568002\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nBug: b/401567832\nTbr: aprilzhou@google.com,bzielinski@google.com,dorianbrandon@google.com\nChange-Id: I8bd6eb1faa6d28fc9661fa55e89495b4c7dfc829\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346690\nCommit-Queue: chromium-internal-autoroll <chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com>\nBot-Commit: chromium-internal-autoroll <chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431387}",
+      "tree": {
+        "sha": "4c416a72d5956231079848dfbe11c6bf7bc7fcbe",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/4c416a72d5956231079848dfbe11c6bf7bc7fcbe"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/5702f88bea17ea19e9dba9b5915186e010c14de3",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/5702f88bea17ea19e9dba9b5915186e010c14de3",
+    "html_url": "https://github.com/chromium/chromium/commit/5702f88bea17ea19e9dba9b5915186e010c14de3",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/5702f88bea17ea19e9dba9b5915186e010c14de3/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "e11590ccc149634ccff3213a7e5d755d40f03c6f",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/e11590ccc149634ccff3213a7e5d755d40f03c6f",
+        "html_url": "https://github.com/chromium/chromium/commit/e11590ccc149634ccff3213a7e5d755d40f03c6f"
+      }
+    ]
+  },
+  {
+    "sha": "e11590ccc149634ccff3213a7e5d755d40f03c6f",
+    "node_id": "C_kwDOByyPPdoAKGUxMTU5MGNjYzE0OTYzNGNjZmYzMjEzYTdlNWQ3NTVkNDBmMDNjNmY",
+    "commit": {
+      "author": {
+        "name": "chromium-autoroll",
+        "email": "chromium-autoroll@skia-public.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:30:42Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:30:42Z"
+      },
+      "message": "Roll Chrome Android ARM64 PGO Profile\n\nRoll Chrome Android ARM64 PGO profile from chrome-android64-main-1741761521-c0fc149785b3c66875b048e8fcc00b1ad7b76597-205f210c2379edbbeba7ed74174afbdf915f0ef1.profdata to chrome-android64-main-1741765952-90fe0dd7925d8552f88443fa7982f848278afe8b-ee7c40f95174872ce8b2b698974bea4b0f886386.profdata\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://autoroll.skia.org/r/pgo-android-arm64-chromium\nPlease CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nTbr: pgo-profile-sheriffs@google.com\nMerge-Approval-Bypass: Chrome autoroller\nChange-Id: I54cfff0a301b8030dbdd3345551e04eca0b30281\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346867\nCommit-Queue: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nBot-Commit: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431386}",
+      "tree": {
+        "sha": "8bfdffe6d6ddb193549886c2a3a16f17c017ddbf",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/8bfdffe6d6ddb193549886c2a3a16f17c017ddbf"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/e11590ccc149634ccff3213a7e5d755d40f03c6f",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/e11590ccc149634ccff3213a7e5d755d40f03c6f",
+    "html_url": "https://github.com/chromium/chromium/commit/e11590ccc149634ccff3213a7e5d755d40f03c6f",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/e11590ccc149634ccff3213a7e5d755d40f03c6f/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "34e62808fe4fec8c60a9650cef1f95a1e9b95b45",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/34e62808fe4fec8c60a9650cef1f95a1e9b95b45",
+        "html_url": "https://github.com/chromium/chromium/commit/34e62808fe4fec8c60a9650cef1f95a1e9b95b45"
+      }
+    ]
+  },
+  {
+    "sha": "34e62808fe4fec8c60a9650cef1f95a1e9b95b45",
+    "node_id": "C_kwDOByyPPdoAKDM0ZTYyODA4ZmU0ZmVjOGM2MGE5NjUwY2VmMWY5NWExZTliOTViNDU",
+    "commit": {
+      "author": {
+        "name": "Ivana Žužić",
+        "email": "izuzic@google.com",
+        "date": "2025-03-12T09:29:09Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:29:09Z"
+      },
+      "message": "[Gardener] Revert \"[Site Settings] Add icon to radio buttons on Android.\"\n\nThis reverts commit b97841327f9d4cebf668c87bc6aacf1faf7d4c2c.\n\nReason for revert: crrev.com/c/6335832 is causing issues with\ntestAllowGeolocation test. This CL blocks reverting it.\nSee crbug.com/402655848 for details.\n\nOriginal change's description:\n> [Site Settings] Add icon to radio buttons on Android.\n>\n> Add allow/block icons to each radio button for permission site\n> setting's radio button groups on Android.\n>\n> UI design: go/site-settings-ui-design\n>\n> Binary-Size: Size increase is unavoidable. (Introduced a bench of new icons for site settings)\n> Bug: 41494473\n> Change-Id: I25e7f99133364769ab67e7bb57d5e65e73609e8b\n> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6317567\n> Commit-Queue: Yifan Luo <lyf@chromium.org>\n> Reviewed-by: Ravjit Uppal <ravjit@chromium.org>\n> Cr-Commit-Position: refs/heads/main@{#1430902}\n\nBug: 41494473, 402655848\nNo-Presubmit: true\nNo-Tree-Checks: true\nNo-Try: true\nChange-Id: I4812468ea2bbf4f43e8eb4ec5ea182008c563638\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6347196\nBot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nOwners-Override: Ivana Žužić <izuzic@google.com>\nReviewed-by: Ivana Žužić <izuzic@google.com>\nCommit-Queue: Ivana Žužić <izuzic@google.com>\nCr-Commit-Position: refs/heads/main@{#1431385}",
+      "tree": {
+        "sha": "14c830952e41a30b10e03013a6a0f0156fdd628b",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/14c830952e41a30b10e03013a6a0f0156fdd628b"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/34e62808fe4fec8c60a9650cef1f95a1e9b95b45",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/34e62808fe4fec8c60a9650cef1f95a1e9b95b45",
+    "html_url": "https://github.com/chromium/chromium/commit/34e62808fe4fec8c60a9650cef1f95a1e9b95b45",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/34e62808fe4fec8c60a9650cef1f95a1e9b95b45/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "d665074a466b4828da886986716696473088aab1",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/d665074a466b4828da886986716696473088aab1",
+        "html_url": "https://github.com/chromium/chromium/commit/d665074a466b4828da886986716696473088aab1"
+      }
+    ]
+  },
+  {
+    "sha": "d665074a466b4828da886986716696473088aab1",
+    "node_id": "C_kwDOByyPPdoAKGQ2NjUwNzRhNDY2YjQ4MjhkYTg4Njk4NjcxNjY5NjQ3MzA4OGFhYjE",
+    "commit": {
+      "author": {
+        "name": "Rune Lillesveen",
+        "email": "futhark@chromium.org",
+        "date": "2025-03-12T09:27:34Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:27:34Z"
+      },
+      "message": "Invalidation for sibling-count()/sibling-index()\n\n1. Use the HasSiblingFunction() flag on computed style to tell the\n   parent node that we have forward/backward positional rules.\n   sibling-index() is forward positional and sibling-count() is both,\n   but we don't separate between those functions during resolution.\n\n2. Introduce a singleton TreeCountingInvalidationSet() that invalidates\n   elements which have a ComputedStyle with HasSiblingFunction(). This\n   set is scheduled for insertions/removals when the parent is marked\n   as being affected by positional rules.\n\n   An alternative would be to bake this into the\n   NthSiblingInvalidationSet for the CSSGlobalRuleset. We could do\n   that by unconditionally setting the invalidates_tree_counting_\n   flag in the NthSiblingInvalidationSet. Alternatively we could\n   detect the first time a tree counting function is applied, mark the\n   CSSGlobalRuleset dirty and re-collect/create the\n   NthSiblingInvalidationSet with invalidates_tree_counting_ set to\n   true.\n\n3. The invalidation required for slot assignment changes has not been\n   implemented in this CL, but a couple of (failing) tests have been\n   added.\n\nBug: 40282719\nChange-Id: If32052156d9fa271bd87a7722b53a4353778261b\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6329380\nReviewed-by: Steinar H Gunderson <sesse@chromium.org>\nCommit-Queue: Rune Lillesveen <futhark@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431384}",
+      "tree": {
+        "sha": "6015aa4a625540459f997ed48ba89a62dfaecf52",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/6015aa4a625540459f997ed48ba89a62dfaecf52"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/d665074a466b4828da886986716696473088aab1",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/d665074a466b4828da886986716696473088aab1",
+    "html_url": "https://github.com/chromium/chromium/commit/d665074a466b4828da886986716696473088aab1",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/d665074a466b4828da886986716696473088aab1/comments",
+    "author": {
+      "login": "lilles",
+      "id": 889557,
+      "node_id": "MDQ6VXNlcjg4OTU1Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/889557?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lilles",
+      "html_url": "https://github.com/lilles",
+      "followers_url": "https://api.github.com/users/lilles/followers",
+      "following_url": "https://api.github.com/users/lilles/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lilles/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lilles/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lilles/subscriptions",
+      "organizations_url": "https://api.github.com/users/lilles/orgs",
+      "repos_url": "https://api.github.com/users/lilles/repos",
+      "events_url": "https://api.github.com/users/lilles/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lilles/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "be19174b1447d3e63d357dd91f979ba91e2ef4c3",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/be19174b1447d3e63d357dd91f979ba91e2ef4c3",
+        "html_url": "https://github.com/chromium/chromium/commit/be19174b1447d3e63d357dd91f979ba91e2ef4c3"
+      }
+    ]
+  },
+  {
+    "sha": "be19174b1447d3e63d357dd91f979ba91e2ef4c3",
+    "node_id": "C_kwDOByyPPdoAKGJlMTkxNzRiMTQ0N2QzZTYzZDM1N2RkOTFmOTc5YmE5MWUyZWY0YzM",
+    "commit": {
+      "author": {
+        "name": "Ivana Žužić",
+        "email": "izuzic@google.com",
+        "date": "2025-03-12T09:24:19Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:24:19Z"
+      },
+      "message": "[Gardener] Revert \"[Site Settings] Update radio button primary texts\"\n\nThis reverts commit f3a7cf3e829c9b418af31f404ee45b8916f955b2.\n\nReason for revert: crrev.com/c/6335832 is causing issues with\ntestAllowGeolocation test. This CL blocks reverting it.\nSee crbug.com/402655848 for details.\n\nOriginal change's description:\n> [Site Settings] Update radio button primary texts\n>\n> This CL changed primary text for the radio buttons and added missing\n> description for FILE_EDITING.\n>\n> UI design: go/site-settings-ui-design\n>\n> Binary-Size: Size increase is unavoidable. (Introduced a bench of new text strings for site settings, will remove the old one after feature launched)\n> Bug: 41494473\n> Change-Id: I499efea57df107f68cd29ffade267a259073cb08\n> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6329624\n> Commit-Queue: Yifan Luo <lyf@chromium.org>\n> Reviewed-by: Christian Dullweber <dullweber@chromium.org>\n> Cr-Commit-Position: refs/heads/main@{#1430904}\n\nBug: 41494473, 402655848\nNo-Presubmit: true\nNo-Tree-Checks: true\nNo-Try: true\nChange-Id: I5d6c3dbaf675bf0fbaff8def557f5a5417dc2e7f\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6345272\nBot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nCommit-Queue: Ivana Žužić <izuzic@google.com>\nOwners-Override: Ivana Žužić <izuzic@google.com>\nCr-Commit-Position: refs/heads/main@{#1431383}",
+      "tree": {
+        "sha": "c8ae47f2d9631b176c79bc54f7d07aa0717b1fdd",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/c8ae47f2d9631b176c79bc54f7d07aa0717b1fdd"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/be19174b1447d3e63d357dd91f979ba91e2ef4c3",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/be19174b1447d3e63d357dd91f979ba91e2ef4c3",
+    "html_url": "https://github.com/chromium/chromium/commit/be19174b1447d3e63d357dd91f979ba91e2ef4c3",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/be19174b1447d3e63d357dd91f979ba91e2ef4c3/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "4f6c05edd443a7e645c4e99951a5593634434923",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/4f6c05edd443a7e645c4e99951a5593634434923",
+        "html_url": "https://github.com/chromium/chromium/commit/4f6c05edd443a7e645c4e99951a5593634434923"
+      }
+    ]
+  },
+  {
+    "sha": "4f6c05edd443a7e645c4e99951a5593634434923",
+    "node_id": "C_kwDOByyPPdoAKDRmNmMwNWVkZDQ0M2E3ZTY0NWM0ZTk5OTUxYTU1OTM2MzQ0MzQ5MjM",
+    "commit": {
+      "author": {
+        "name": "chromium-autoroll",
+        "email": "chromium-autoroll@skia-public.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:22:15Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:22:15Z"
+      },
+      "message": "Roll ANGLE from 4b39a6a9749e to 970834633053 (1 revision)\n\nhttps://chromium.googlesource.com/angle/angle.git/+log/4b39a6a9749e..970834633053\n\n2025-03-12 chris@rive.app Polish PLS interactions with xform feedback & QCOM_tiled_rendering\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://autoroll.skia.org/r/angle-chromium-autoroll\nPlease CC angle-team@google.com,geofflang@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo file a bug in ANGLE: https://bugs.chromium.org/p/angleproject/issues/entry\nTo file a bug in Chromium: https://bugs.chromium.org/p/chromium/issues/entry\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nCq-Include-Trybots: luci.chromium.try:android_optional_gpu_tests_rel;luci.chromium.try:linux_optional_gpu_tests_rel;luci.chromium.try:mac_optional_gpu_tests_rel;luci.chromium.try:win_optional_gpu_tests_rel;luci.chromium.try:linux-swangle-try-x64;luci.chromium.try:win-swangle-try-x86\nBug: None\nTbr: geofflang@google.com\nChange-Id: I560142b941781d09d0cd56ddd3d8417c0a12572b\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346281\nCommit-Queue: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nBot-Commit: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431382}",
+      "tree": {
+        "sha": "584c1c25bf3ace581707a7912a75ca2a56992696",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/584c1c25bf3ace581707a7912a75ca2a56992696"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/4f6c05edd443a7e645c4e99951a5593634434923",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/4f6c05edd443a7e645c4e99951a5593634434923",
+    "html_url": "https://github.com/chromium/chromium/commit/4f6c05edd443a7e645c4e99951a5593634434923",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/4f6c05edd443a7e645c4e99951a5593634434923/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "fdb589d8a93727549eda2a51395a9a5dd8f9c815",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/fdb589d8a93727549eda2a51395a9a5dd8f9c815",
+        "html_url": "https://github.com/chromium/chromium/commit/fdb589d8a93727549eda2a51395a9a5dd8f9c815"
+      }
+    ]
+  },
+  {
+    "sha": "fdb589d8a93727549eda2a51395a9a5dd8f9c815",
+    "node_id": "C_kwDOByyPPdoAKGZkYjU4OWQ4YTkzNzI3NTQ5ZWRhMmE1MTM5NWE5YTVkZDhmOWM4MTU",
+    "commit": {
+      "author": {
+        "name": "Kent Tamura",
+        "email": "tkent@chromium.org",
+        "date": "2025-03-12T09:21:59Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:21:59Z"
+      },
+      "message": "FindRubyInPage: Fix a typo in a test name\n\nThis CL has no behavior changes.\n\nChange-Id: I856ee98dc3e252a736490d023fcc91ab8f1671d7\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6342810\nAuto-Submit: Kent Tamura <tkent@chromium.org>\nReviewed-by: Koji Ishii <kojii@chromium.org>\nCommit-Queue: Koji Ishii <kojii@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431381}",
+      "tree": {
+        "sha": "f5845d22a4a1721dafec147067a2ca92d64cfe5b",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/f5845d22a4a1721dafec147067a2ca92d64cfe5b"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/fdb589d8a93727549eda2a51395a9a5dd8f9c815",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/fdb589d8a93727549eda2a51395a9a5dd8f9c815",
+    "html_url": "https://github.com/chromium/chromium/commit/fdb589d8a93727549eda2a51395a9a5dd8f9c815",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/fdb589d8a93727549eda2a51395a9a5dd8f9c815/comments",
+    "author": {
+      "login": "tkent-google",
+      "id": 12651367,
+      "node_id": "MDQ6VXNlcjEyNjUxMzY3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12651367?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/tkent-google",
+      "html_url": "https://github.com/tkent-google",
+      "followers_url": "https://api.github.com/users/tkent-google/followers",
+      "following_url": "https://api.github.com/users/tkent-google/following{/other_user}",
+      "gists_url": "https://api.github.com/users/tkent-google/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/tkent-google/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/tkent-google/subscriptions",
+      "organizations_url": "https://api.github.com/users/tkent-google/orgs",
+      "repos_url": "https://api.github.com/users/tkent-google/repos",
+      "events_url": "https://api.github.com/users/tkent-google/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/tkent-google/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "2d3b0da80e2aac2d1626606f0cd05ea897f24df5",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/2d3b0da80e2aac2d1626606f0cd05ea897f24df5",
+        "html_url": "https://github.com/chromium/chromium/commit/2d3b0da80e2aac2d1626606f0cd05ea897f24df5"
+      }
+    ]
+  },
+  {
+    "sha": "2d3b0da80e2aac2d1626606f0cd05ea897f24df5",
+    "node_id": "C_kwDOByyPPdoAKDJkM2IwZGE4MGUyYWFjMmQxNjI2NjA2ZjBjZDA1ZWE4OTdmMjRkZjU",
+    "commit": {
+      "author": {
+        "name": "Kent Tamura",
+        "email": "tkent@chromium.org",
+        "date": "2025-03-12T09:19:06Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:19:06Z"
+      },
+      "message": "Make the \"PlainTextPainter\" flag status \"experimental\"\n\nNote that \"CanvasTextNg\" is not enabled anywhere yet.\n\nBug: 389726691\nChange-Id: I3b8c420c4be16935d667022a7862fc3e74b158b3\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6342232\nCommit-Queue: Koji Ishii <kojii@chromium.org>\nReviewed-by: Koji Ishii <kojii@chromium.org>\nAuto-Submit: Kent Tamura <tkent@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1431380}",
+      "tree": {
+        "sha": "b235fc30802065c97c519ba5e8c7f60acde4b286",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/b235fc30802065c97c519ba5e8c7f60acde4b286"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/2d3b0da80e2aac2d1626606f0cd05ea897f24df5",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/2d3b0da80e2aac2d1626606f0cd05ea897f24df5",
+    "html_url": "https://github.com/chromium/chromium/commit/2d3b0da80e2aac2d1626606f0cd05ea897f24df5",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/2d3b0da80e2aac2d1626606f0cd05ea897f24df5/comments",
+    "author": {
+      "login": "tkent-google",
+      "id": 12651367,
+      "node_id": "MDQ6VXNlcjEyNjUxMzY3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12651367?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/tkent-google",
+      "html_url": "https://github.com/tkent-google",
+      "followers_url": "https://api.github.com/users/tkent-google/followers",
+      "following_url": "https://api.github.com/users/tkent-google/following{/other_user}",
+      "gists_url": "https://api.github.com/users/tkent-google/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/tkent-google/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/tkent-google/subscriptions",
+      "organizations_url": "https://api.github.com/users/tkent-google/orgs",
+      "repos_url": "https://api.github.com/users/tkent-google/repos",
+      "events_url": "https://api.github.com/users/tkent-google/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/tkent-google/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": null,
+    "parents": [
+      {
+        "sha": "6560dac9a4f12d33c360c1f77c147132ef1bfe83",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/6560dac9a4f12d33c360c1f77c147132ef1bfe83",
+        "html_url": "https://github.com/chromium/chromium/commit/6560dac9a4f12d33c360c1f77c147132ef1bfe83"
+      }
+    ]
+  },
+  {
+    "sha": "6560dac9a4f12d33c360c1f77c147132ef1bfe83",
+    "node_id": "C_kwDOByyPPdoAKDY1NjBkYWM5YTRmMTJkMzNjMzYwYzFmNzdjMTQ3MTMyZWYxYmZlODM",
+    "commit": {
+      "author": {
+        "name": "chromium-internal-autoroll",
+        "email": "chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:18:32Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:18:32Z"
+      },
+      "message": "Roll ios_internal from 3e07960609f5 to 0f3ebbb3168d\n\nhttps://chrome-internal.googlesource.com/chrome/ios_internal.git/+log/3e07960609f5..0f3ebbb3168d\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://skia-autoroll.corp.goog/r/ios-internal-chromium-autoroll\nPlease CC chrome-brapp-engprod@google.com,rkgibson@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nBug: None\nChange-Id: If97ab36c223af4c587e86ab9ea9a8e8deb583362\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346431\nCommit-Queue: chromium-internal-autoroll <chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com>\nBot-Commit: chromium-internal-autoroll <chromium-internal-autoroll@skia-corp.google.com.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431379}",
+      "tree": {
+        "sha": "72bb75e0459aefdcda78def9d5bc528380469173",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/72bb75e0459aefdcda78def9d5bc528380469173"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/6560dac9a4f12d33c360c1f77c147132ef1bfe83",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/6560dac9a4f12d33c360c1f77c147132ef1bfe83",
+    "html_url": "https://github.com/chromium/chromium/commit/6560dac9a4f12d33c360c1f77c147132ef1bfe83",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/6560dac9a4f12d33c360c1f77c147132ef1bfe83/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "c540545a9d6db47b0b73a4257c9a33ba1c1e0f07",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/c540545a9d6db47b0b73a4257c9a33ba1c1e0f07",
+        "html_url": "https://github.com/chromium/chromium/commit/c540545a9d6db47b0b73a4257c9a33ba1c1e0f07"
+      }
+    ]
+  },
+  {
+    "sha": "c540545a9d6db47b0b73a4257c9a33ba1c1e0f07",
+    "node_id": "C_kwDOByyPPdoAKGM1NDA1NDVhOWQ2ZGI0N2IwYjczYTQyNTdjOWEzM2JhMWMxZTBmMDc",
+    "commit": {
+      "author": {
+        "name": "chromium-autoroll",
+        "email": "chromium-autoroll@skia-public.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:17:35Z"
+      },
+      "committer": {
+        "name": "Chromium LUCI CQ",
+        "email": "chromium-scoped@luci-project-accounts.iam.gserviceaccount.com",
+        "date": "2025-03-12T09:17:35Z"
+      },
+      "message": "Roll Chrome Mac PGO Profile\n\nRoll Chrome Mac PGO profile from chrome-mac-main-1741737579-ccb51917ed35a9f446e8b168249d40857cbb8521-12dc78420cff05dee9f2c7037e5dfe9e54becdb0.profdata to chrome-mac-main-1741758473-d282a0cc6ee602e2974681851a77e16e6e340bc6-66c9a78def80d57733264f2276578f4a3a68ca20.profdata\n\nIf this roll has caused a breakage, revert this CL and stop the roller\nusing the controls here:\nhttps://autoroll.skia.org/r/pgo-mac-chromium\nPlease CC chrome-brapp-engprod@google.com,pgo-profile-sheriffs@google.com on the revert to ensure that a human\nis aware of the problem.\n\nTo file a bug in Chromium main branch: https://bugs.chromium.org/p/chromium/issues/entry\n\nTo report a problem with the AutoRoller itself, please file a bug:\nhttps://issues.skia.org/issues/new?component=1389291&template=1850622\n\nDocumentation for the AutoRoller is here:\nhttps://skia.googlesource.com/buildbot/+doc/main/autoroll/README.md\n\nCq-Include-Trybots: luci.chrome.try:mac-chrome\nTbr: pgo-profile-sheriffs@google.com\nMerge-Approval-Bypass: Chrome autoroller\nChange-Id: Ie384a2b6e20ba65fe3d787d31041787017f3ae6a\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/6346688\nCommit-Queue: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nBot-Commit: chromium-autoroll <chromium-autoroll@skia-public.iam.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1431378}",
+      "tree": {
+        "sha": "de4d61a5e2e982c4aa390a4a0a6c609bbe2d3aeb",
+        "url": "https://api.github.com/repos/chromium/chromium/git/trees/de4d61a5e2e982c4aa390a4a0a6c609bbe2d3aeb"
+      },
+      "url": "https://api.github.com/repos/chromium/chromium/git/commits/c540545a9d6db47b0b73a4257c9a33ba1c1e0f07",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/chromium/chromium/commits/c540545a9d6db47b0b73a4257c9a33ba1c1e0f07",
+    "html_url": "https://github.com/chromium/chromium/commit/c540545a9d6db47b0b73a4257c9a33ba1c1e0f07",
+    "comments_url": "https://api.github.com/repos/chromium/chromium/commits/c540545a9d6db47b0b73a4257c9a33ba1c1e0f07/comments",
+    "author": null,
+    "committer": null,
+    "parents": [
+      {
+        "sha": "a914a6196387c5bbd2f7c7051d7fe7cf8c890729",
+        "url": "https://api.github.com/repos/chromium/chromium/commits/a914a6196387c5bbd2f7c7051d7fe7cf8c890729",
+        "html_url": "https://github.com/chromium/chromium/commit/a914a6196387c5bbd2f7c7051d7fe7cf8c890729"
+      }
+    ]
+  }
+]

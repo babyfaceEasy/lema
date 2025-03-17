@@ -1,18 +1,21 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/babyfaceeasy/lema/internal/integrations/githubapi"
 	"github.com/babyfaceeasy/lema/internal/messages"
 	"github.com/babyfaceeasy/lema/internal/store"
+	"github.com/babyfaceeasy/lema/internal/tasks"
 	"github.com/babyfaceeasy/lema/internal/utils"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 )
 
-func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
+func (h Handler) GetRepositoryCommitsOLD(w http.ResponseWriter, r *http.Request) {
 	repositoryName := mux.Vars(r)["repository_name"]
 	ownerName := r.URL.Query().Get("owner_name")
 	if ownerName == "" {
@@ -268,6 +271,195 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 		Status:  true,
 		Message: "Commits stored and retrieved successfully",
 		Data:    storedCommits,
+	})
+	utils.SendResponse(w, code, res)
+}
+
+func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
+	logr := h.logger.With(zap.String("method", "GetRepositoryCommits"))
+
+	repositoryName := mux.Vars(r)["repository_name"]
+	ownerName := r.URL.Query().Get("owner_name")
+	if ownerName == "" {
+		ownerName = repositoryName
+	}
+
+	logr.Debug("repository name passed", zap.String("repo_name", repositoryName))
+	logr.Debug("owner name passed", zap.String("owner_name", ownerName))
+
+	// Retrieve and return the stored commits.
+	storedCommits, err := h.commitService.GetCommitsByRepositoryName(r.Context(), ownerName, repositoryName)
+	if err != nil {
+		logr.Error("error in getting stored commits", zap.Error(err))
+		code, res := h.response(http.StatusBadRequest, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	code, res := h.response(http.StatusOK, ResponseFormat{
+		Status:  true,
+		Message: "Commits stored and retrieved successfully",
+		Data:    storedCommits,
+	})
+	utils.SendResponse(w, code, res)
+}
+
+func (h Handler) GetRepository(w http.ResponseWriter, r *http.Request) {
+	logr := h.logger.With(zap.String("method", "GetRepository"))
+
+	repositoryName := mux.Vars(r)["repository_name"]
+	ownerName := r.URL.Query().Get("owner_name")
+	if ownerName == "" {
+		ownerName = repositoryName
+	}
+
+	logr.Debug("repository name passed", zap.String("repo_name", repositoryName))
+	logr.Debug("owner name passed", zap.String("owner_name", ownerName))
+
+	repositoryDetails, err := h.repositoryService.GetRepository(r.Context(), ownerName, repositoryName)
+	if err != nil {
+		logr.Error("error in getting repository details", zap.Error(err), zap.String("owner_name", ownerName), zap.String("repo_name", repositoryName))
+	}
+
+	if repositoryDetails == nil {
+		code, res := h.response(http.StatusNotFound, ResponseFormat{
+			Status:  false,
+			Message: messages.NotFound,
+			Data:    repositoryDetails,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	code, res := h.response(http.StatusOK, ResponseFormat{
+		Status:  true,
+		Message: "Repository Details",
+		Data:    repositoryDetails,
+	})
+	utils.SendResponse(w, code, res)
+}
+
+func (h Handler) MonitorRepository(w http.ResponseWriter, r *http.Request) {
+	logr := h.logger.With(zap.String("method", "MonitorRepository"))
+
+	var req monitorRepositoryRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		code, res := h.response(http.StatusBadRequest, ResponseFormat{
+			Status:  false,
+			Message: "invalid payload request",
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+	defer r.Body.Close()
+
+	// validate
+	if err := req.Validate(); err != nil {
+		code, res := h.response(http.StatusBadRequest, ResponseFormat{
+			Status:  false,
+			Message: messages.InvalidRequest,
+		})
+		if verrs, ok := err.(validation.Errors); ok {
+			res.Data = h.withValidationErrors(verrs)
+		}
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	// check the startTime
+	if req.StartTimeStr != "" {
+		req.StartTime, err = time.Parse(time.RFC3339, req.StartTimeStr)
+		if err != nil {
+			code, res := h.response(http.StatusBadRequest, ResponseFormat{
+				Status:  false,
+				Message: "Invalid 'start_time' date format, must be RFC3339",
+			})
+			utils.SendResponse(w, code, res)
+			return
+		}
+	}
+
+	// logic
+	// todo: work on how to check if it exists already to return 429 error
+	if err := h.repositoryService.SaveRepository(r.Context(), req.OwnerName, req.RepositoryName, &req.StartTime); err != nil {
+		logr.Error("error in saving repository:", zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	if err := tasks.CallLoadCommitsTask(req.OwnerName, req.RepositoryName); err != nil {
+		logr.Error("error in creating task to load commits:", zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	code, res := h.response(http.StatusOK, ResponseFormat{
+		Status:  true,
+		Message: "Monitoring started for repository named " + req.RepositoryName,
+	})
+	utils.SendResponse(w, code, res)
+}
+
+func (h Handler) ResetCollection(w http.ResponseWriter, r *http.Request) {
+	logr := h.logger.With(zap.String("method", "ResetCollection"))
+
+	var req monitorRepositoryRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		code, res := h.response(http.StatusBadRequest, ResponseFormat{
+			Status:  false,
+			Message: "invalid payload request",
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+	defer r.Body.Close()
+
+	if err := h.repositoryService.SaveRepository(r.Context(), req.OwnerName, req.RepositoryName, &req.StartTime); err != nil {
+		logr.Error("error in saving repository:", zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	if err := h.repositoryService.UpdateRepositoryStartDate(r.Context(), req.OwnerName, req.RepositoryName, req.StartTime); err != nil {
+		logr.Error("error in updating start date", zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	if err := tasks.CallResetCommitsTask(req.OwnerName, req.OwnerName); err != nil {
+		logr.Error("error in initiating the background task for reset commits", zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	code, res := h.response(http.StatusOK, ResponseFormat{
+		Status:  true,
+		Message: "Reset commits started for repository named  " + req.RepositoryName,
 	})
 	utils.SendResponse(w, code, res)
 }

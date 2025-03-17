@@ -8,19 +8,15 @@ import (
 
 	"github.com/babyfaceeasy/lema/config"
 	"github.com/babyfaceeasy/lema/db"
+	"github.com/babyfaceeasy/lema/pkg/logger"
 
-	//_ "github.com/babyfaceeasy/lema/docs"
+	"github.com/babyfaceeasy/lema/internal/container"
 	"github.com/babyfaceeasy/lema/internal/server"
 	"github.com/babyfaceeasy/lema/internal/store"
 	"github.com/babyfaceeasy/lema/internal/tasks"
 	"go.uber.org/zap"
 )
 
-// @title Github Service
-// @version 1.0
-// @description This is a simple service that fetches data fom Github's API.
-// @host localhost:3000
-// @BasePath /
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
@@ -31,45 +27,50 @@ func run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	// logger
-	logger, err := zap.NewProduction()
-	if err != nil {
-		log.Fatalf("failed to initialize zap logger: %v", err)
-	}
-	defer logger.Sync()
-
 	// load configurations
-	conf, err := config.New()
+	cfg, err := config.New()
 	if err != nil {
-		logger.Fatal("failed to load config", zap.Error(err))
+		return err
 	}
+
+	// logger
+	logr, err := logger.NewLogger(string(cfg.AppEnv))
+	if err != nil {
+		return err
+	}
+	defer logr.Sync()
 
 	// db
-	conn, err := db.NewPostgresDb(conf)
+	// todo: delete later
+	conn, err := db.NewPostgresDb(cfg)
 	if err != nil {
 		return err
 	}
 
 	dataStore := store.New(conn)
 
+	// container
+	diContainer := container.NewContainer(cfg, logr)
+	defer diContainer.Close()
+
 	// run migrations
-	err = db.RunMigrations(conn, logger)
+	err = db.RunMigrations(conn, logr)
 	if err != nil {
 		return err
 	}
 
 	// start worker / task server
-	tsk := tasks.New(conf, logger, dataStore)
+	tsk := tasks.New(cfg, logr, dataStore, diContainer.GetCommitService(), diContainer.GetRepositoryService())
 	go func() {
-		if err := tasks.StartWorker(*tsk, conf); err != nil {
+		if err := tasks.StartWorker(*tsk, cfg); err != nil {
 			// return err
-			logger.Fatal("worker server encountered and error", zap.Error(err))
+			logr.Fatal("worker server encountered and error", zap.Error(err))
 		}
 	}()
 
 	// create and start server
-	svr := server.New(conf, logger, dataStore)
-	if err := svr.Start(ctx); err != nil {
+	svr := server.New(cfg, logr, dataStore)
+	if err := svr.Start(ctx, diContainer); err != nil {
 		return err
 	}
 

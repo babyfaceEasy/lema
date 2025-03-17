@@ -35,7 +35,7 @@ type Config struct {
 
 	// app
 	AppName       string `env:"APP_NAME"`
-	Env           Env    `env:"ENV" envDefault:"dev"`
+	AppEnv        Env    `env:"APP_ENV" envDefault:"dev"`
 	ProjectRoot   string `env:"PROJECT_ROOT"`
 	CorsWhiteList string `env:"CORS_WHITELIST"`
 
@@ -56,7 +56,7 @@ func New() (*Config, error) {
 func (c *Config) DatabaseUrl() string {
 	port := c.DatabasePort
 
-	if c.Env == Env_Test {
+	if c.AppEnv == Env_Test {
 		port = c.DatabasePortTest
 	}
 

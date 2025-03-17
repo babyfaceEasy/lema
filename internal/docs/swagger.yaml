@@ -1,9 +1,0 @@
-basePath: /
-host: localhost:3080
-info:
-  contact: {}
-  description: This is a simple service that fetches data fom Github's API.
-  title: Github Service
-  version: "1.0"
-paths: {}
-swagger: "2.0"
