@@ -66,6 +66,7 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 	repoDetails, err := rs.githubClient.GetRepositoryDetails(repo, owner)
 	if err != nil {
 		logr.Error("error in getting repository details", zap.Error(err))
+		return err
 	}
 
 	newRepo := domain.Repository{
@@ -82,6 +83,8 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 		SinceDate:           time.Now(), // Set the initial SinceDate to now.
 		CreatedAt:           time.Now(),
 	}
+
+	logr.Sugar().Debugf("data to be saved into db%+v\n", newRepo)
 
 	if err := rs.repoRepository.CreateOrUpdate(ctx, newRepo); err != nil {
 		logr.Error("error in saving repository", zap.Error(err))

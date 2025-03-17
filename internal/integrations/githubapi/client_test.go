@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/babyfaceeasy/lema/config"
 	"github.com/babyfaceeasy/lema/internal/integrations/githubapi"
 	mock_githubapi "github.com/babyfaceeasy/lema/internal/integrations/githubapi/mock_httpclient"
 	"github.com/bytedance/sonic"
@@ -28,8 +29,10 @@ func TestGetRepositoryDetails(t *testing.T) {
 	ownerName := "chromium"
 	repoName := "chromium"
 
+	mockConfig := config.Config{}
+
 	// Create our client with the mocked HTTP client.
-	client := githubapi.NewClient(baseURL, mockHttpClient, logger)
+	client := githubapi.NewClient(baseURL, mockHttpClient, logger, &mockConfig)
 
 	// Build an expected RepositoryResponse.
 	expectedResponse := githubapi.RepositoryResponse{
@@ -77,7 +80,9 @@ func TestGetCommits(t *testing.T) {
 	ownerName := "chromium"
 	repoName := "chromium"
 
-	client := githubapi.NewClient(baseURL, mockHttpClient, logger)
+	mockConfig := config.Config{}
+
+	client := githubapi.NewClient(baseURL, mockHttpClient, logger, &mockConfig)
 
 	// Define sample since and until times.
 	sinceTime := time.Now().Add(-24 * time.Hour)
@@ -148,4 +153,3 @@ func TestGetCommits(t *testing.T) {
 		require.WithinDuration(t, expected.Commit.Committer.Date, actual.Commit.Committer.Date, time.Second)
 	}
 }
-

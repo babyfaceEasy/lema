@@ -41,6 +41,7 @@ type Config struct {
 
 	// Github
 	GithubBaseUrl string `env:"GITHUB_BASE_URL"`
+	GithubToken   string `env:"GITHUB_TOKEN"`
 }
 
 func New() (*Config, error) {

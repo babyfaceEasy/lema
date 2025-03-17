@@ -47,7 +47,7 @@ func (h Handler) GetRepositoryCommitsOLD(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Create a GitHub client.
-	githubClient := githubapi.NewClient(h.config.GithubBaseUrl, &http.Client{Timeout: 10 * time.Second}, h.logger)
+	githubClient := githubapi.NewClient(h.config.GithubBaseUrl, &http.Client{Timeout: 10 * time.Second}, h.logger, h.config)
 
 	// Check if the repository exists in the DB.
 	exists, err := h.store.Repositories.Exists(r.Context(), repositoryName)
@@ -415,7 +415,7 @@ func (h Handler) MonitorRepository(w http.ResponseWriter, r *http.Request) {
 func (h Handler) ResetCollection(w http.ResponseWriter, r *http.Request) {
 	logr := h.logger.With(zap.String("method", "ResetCollection"))
 
-	var req monitorRepositoryRequest
+	var req resetCollectionRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		code, res := h.response(http.StatusBadRequest, ResponseFormat{
@@ -427,15 +427,43 @@ func (h Handler) ResetCollection(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := h.repositoryService.SaveRepository(r.Context(), req.OwnerName, req.RepositoryName, &req.StartTime); err != nil {
-		logr.Error("error in saving repository:", zap.Error(err))
-		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+	// validate
+	if err := req.Validate(); err != nil {
+		code, res := h.response(http.StatusBadRequest, ResponseFormat{
 			Status:  false,
-			Message: messages.SomethingWentWrong,
+			Message: messages.InvalidRequest,
 		})
+		if verrs, ok := err.(validation.Errors); ok {
+			res.Data = h.withValidationErrors(verrs)
+		}
 		utils.SendResponse(w, code, res)
 		return
 	}
+
+	// check the startTime
+	if req.StartTimeStr != "" {
+		req.StartTime, err = time.Parse(time.RFC3339, req.StartTimeStr)
+		if err != nil {
+			code, res := h.response(http.StatusBadRequest, ResponseFormat{
+				Status:  false,
+				Message: "Invalid 'start_time' date format, must be RFC3339",
+			})
+			utils.SendResponse(w, code, res)
+			return
+		}
+	}
+
+	/*
+		if err := h.repositoryService.SaveRepository(r.Context(), req.OwnerName, req.RepositoryName, &req.StartTime); err != nil {
+			logr.Error("error in saving repository:", zap.Error(err))
+			code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+				Status:  false,
+				Message: messages.SomethingWentWrong,
+			})
+			utils.SendResponse(w, code, res)
+			return
+		}
+	*/
 
 	if err := h.repositoryService.UpdateRepositoryStartDate(r.Context(), req.OwnerName, req.RepositoryName, req.StartTime); err != nil {
 		logr.Error("error in updating start date", zap.Error(err))

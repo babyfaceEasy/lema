@@ -39,7 +39,7 @@ func (t *Task) HandleCommitsUpdateTaskOLD(ctx context.Context, a *asynq.Task) er
 	}
 
 	// Create a GitHub client.
-	githubClient := githubapi.NewClient(t.config.GithubBaseUrl, &http.Client{Timeout: 10 * time.Second}, t.logger)
+	githubClient := githubapi.NewClient(t.config.GithubBaseUrl, &http.Client{Timeout: 10 * time.Second}, t.logger, t.config)
 
 	for _, repoDetails := range repos {
 
@@ -107,8 +107,6 @@ func (t *Task) HandleCommitsUpdateTask(ctx context.Context, a *asynq.Task) error
 	if err != nil {
 		return err
 	}
-
-	logr.Debug("on level 2")
 
 	for _, repoDetails := range repos {
 		err := CallLatestCommitsTask(repoDetails.OwnerName, repoDetails.Name)

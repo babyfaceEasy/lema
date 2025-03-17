@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/babyfaceeasy/lema/internal/domain"
@@ -76,7 +77,8 @@ func (s *repositoryStore) UpdateSinceDate(ctx context.Context, repositoryName st
 
 // CreateOrUpdate creates a new repository record if one does not exist (by name),
 // or updates the existing record with the provided fields.
-func (s *repositoryStore) CreateOrUpdate(ctx context.Context, repo domain.Repository) error {
+func (s *repositoryStore) CreateOrUpdateOLD(ctx context.Context, repo domain.Repository) error {
+	log.Printf("repo ben passed :%+v\n", repo)
 	var id int
 	// Check if repository exists using its name.
 	err := s.db.GetContext(ctx, &id, `
@@ -98,9 +100,9 @@ func (s *repositoryStore) CreateOrUpdate(ctx context.Context, repo domain.Reposi
 			}
 			insertQuery := `
 				INSERT INTO repositories 
-					(uid, name, owner_name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, created_at, updated_at, since_date, until_date)
+					(uid, name, owner_name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, created_at, since_date, until_date)
 				VALUES 
-					(:uid, :name, :owner_name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :created_at, :updated_at, :since_date, :until_date)
+					(:uid, :name, :owner_name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :created_at, :since_date, :until_date)
 				RETURNING id
 			`
 			err = s.db.GetContext(ctx, &id, insertQuery, repo)
@@ -130,6 +132,82 @@ func (s *repositoryStore) CreateOrUpdate(ctx context.Context, repo domain.Reposi
 				since_date = :since_date
 				until_date = :until_date
 			WHERE name = :name
+		`
+		res, err := s.db.NamedExecContext(ctx, updateQuery, repo)
+		if err != nil {
+			return fmt.Errorf("failed to update repository %s: %w", repo.Name, err)
+		}
+		affected, err := res.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("failed to get rows affected when updating repository %s: %w", repo.Name, err)
+		}
+		if affected == 0 {
+			return fmt.Errorf("no repository updated for %s", repo.Name)
+		}
+	}
+	return nil
+}
+
+func (s *repositoryStore) CreateOrUpdate(ctx context.Context, repo domain.Repository) error {
+	log.Printf("repo being passed: %+v\n", repo)
+	var id int
+	// Check if repository exists using its name.
+	err := s.db.GetContext(ctx, &id, `
+		SELECT id FROM repositories 
+		WHERE name = $1 and owner_name = $2
+		LIMIT 1
+	`, repo.Name, repo.OwnerName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Repository does not exist: insert a new one.
+			if repo.UID == uuid.Nil {
+				repo.UID = uuid.New()
+			}
+			now := time.Now()
+			if repo.CreatedAt.IsZero() {
+				repo.CreatedAt = now
+			}
+			if repo.SinceDate.IsZero() {
+				repo.SinceDate = now
+			}
+			insertQuery := `
+				INSERT INTO repositories 
+					(uid, name, owner_name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, created_at, since_date, until_date)
+				VALUES 
+					(:uid, :name, :owner_name, :description, :url, :programming_language, :forks_count, :stars_count, :watchers_count, :open_issues_count, :created_at, :since_date, :until_date)
+				RETURNING id
+			`
+			stmt, err := s.db.PrepareNamedContext(ctx, insertQuery)
+			if err != nil {
+				return fmt.Errorf("failed to prepare named statement for repository insert: %w", err)
+			}
+			defer stmt.Close()
+			err = stmt.Get(&id, repo)
+			if err != nil {
+				return fmt.Errorf("failed to insert repository %s: %w", repo.Name, err)
+			}
+		} else {
+			return fmt.Errorf("failed to check repository existence for %s: %w", repo.Name, err)
+		}
+	} else {
+		// Repository exists, so update it.
+		// If repo.SinceDate is zero, update it to now.
+		if repo.SinceDate.IsZero() {
+			repo.SinceDate = time.Now()
+		}
+		updateQuery := `
+			UPDATE repositories SET 
+				description = :description,
+				url = :url,
+				owner_name = :owner_name,
+				programming_language = :programming_language,
+				forks_count = :forks_count,
+				stars_count = :stars_count,
+				watchers_count = :watchers_count,
+				open_issues_count = :open_issues_count,
+				since_date = :since_date,
+				until_date = :until_date
+			WHERE name = :name and owner_name = :owner_name
 		`
 		res, err := s.db.NamedExecContext(ctx, updateQuery, repo)
 		if err != nil {
