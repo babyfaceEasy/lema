@@ -26,6 +26,7 @@ func NewRepositoryService(logger *zap.Logger, repoRepository repositories.Reposi
 	}
 }
 
+// GetAllRepositories returns all repositories in our system.
 func (rs *repositoryService) GetAllRepositories(ctx context.Context) ([]domain.Repository, error) {
 	logr := rs.logger.With(zap.String("method", "GetAllRepositories"))
 	repos, err := rs.repoRepository.GetAll(ctx)
@@ -38,6 +39,7 @@ func (rs *repositoryService) GetAllRepositories(ctx context.Context) ([]domain.R
 	return repos, nil
 }
 
+// GetRepository returns a given repository details.
 func (rs *repositoryService) GetRepository(ctx context.Context, owner, repo string) (*domain.Repository, error) {
 	logr := rs.logger.With(zap.String("method", "GetRepository"))
 
@@ -49,6 +51,7 @@ func (rs *repositoryService) GetRepository(ctx context.Context, owner, repo stri
 	return repoDetails, nil
 }
 
+// SaveRepository creates a new repository.
 func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, repo string, startTime *time.Time) error {
 	logr := rs.logger.With(zap.String("method", "SaveRepository"))
 
@@ -62,7 +65,6 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 		return fmt.Errorf("repository name : %s/%s already in our system", owner, repo)
 	}
 
-	// try getting the details from github client
 	repoDetails, err := rs.githubClient.GetRepositoryDetails(repo, owner)
 	if err != nil {
 		logr.Error("error in getting repository details", zap.Error(err))
@@ -71,7 +73,7 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 
 	newRepo := domain.Repository{
 		Name:                repoDetails.Name,
-		OwnerName:           owner,
+		OwnerName:           repoDetails.Owner.Login,
 		Description:         repoDetails.Description,
 		URL:                 repoDetails.URL,
 		ProgrammingLanguage: repoDetails.ProgrammingLanguage,
@@ -80,7 +82,7 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 		WatchersCount:       repoDetails.WatchersCount,
 		OpenIssuesCount:     repoDetails.OpenIssuesCount,
 		UntilDate:           startTime,
-		SinceDate:           time.Now(), // Set the initial SinceDate to now.
+		SinceDate:           time.Now(),
 		CreatedAt:           time.Now(),
 	}
 
@@ -97,6 +99,7 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 	return nil
 }
 
+// UpdateRepositorySinceDate handles updating the since date field.
 func (rs *repositoryService) UpdateRepositorySinceDate(ctx context.Context, owner string, repo string, sinceTime time.Time) error {
 	logr := rs.logger.With(zap.String("method", "UpdateRepositorySinceDate"))
 
@@ -108,6 +111,7 @@ func (rs *repositoryService) UpdateRepositorySinceDate(ctx context.Context, owne
 	return nil
 }
 
+// UpdateRepositoryStartDate handles updating the until time field.
 func (rs *repositoryService) UpdateRepositoryStartDate(ctx context.Context, ownerName string, repoName string, startTime time.Time) error {
 	logr := rs.logger.With(zap.String("method", "UpdateRepositoryStartDate"))
 

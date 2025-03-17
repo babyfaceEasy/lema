@@ -18,3 +18,12 @@ services:
       - "6379:6379"
     volumes:
       - ./redisdata:/data
+  queue-ui:
+    container_name: "astravest_tasks_ui"
+    image: hibiken/asynqmon
+    platform: linux/amd64
+    ports:
+        - "8080:8080"
+    depends_on:
+        - cache
+    command: ["--redis-url=redis://cache:6379"]

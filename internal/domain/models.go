@@ -31,7 +31,7 @@ type Commit struct {
 	SHA          string     `db:"sha" json:"sha"`
 	URL          string     `db:"url" json:"url"`
 	Message      string     `db:"message" json:"message"`
-	Date         time.Time  `db:"date" json:"date"` // todo: change this to commit_date
+	CommitDate   time.Time  `db:"commit_date" json:"date"`
 	CreatedAt    time.Time  `db:"created_at" json:"-"`
 	Repository   Repository `db:"Repository" json:"repository"`
 	Author       Author     `db:"Author" json:"author"`
