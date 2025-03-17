@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/babyfaceeasy/lema/internal/integrations/githubapi"
@@ -212,7 +214,7 @@ func (h Handler) GetRepositoryCommitsOLD(w http.ResponseWriter, r *http.Request)
 			Message: com.Commit.Message,
 			Repository: store.Repository{
 				Name:                repoResponse.Name,
-				OwnerName:           ownerName,
+				OwnerName:           repoResponse.Owner.Login,
 				Description:         repoResponse.Description,
 				URL:                 repoResponse.URL,
 				ProgrammingLanguage: repoResponse.ProgrammingLanguage,
@@ -383,6 +385,30 @@ func (h Handler) MonitorRepository(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	req.OwnerName = strings.ToLower(req.OwnerName)
+	req.RepositoryName = strings.ToLower(req.RepositoryName)
+
+	// Check if user exists
+	repoDetails, err := h.repositoryService.GetRepository(r.Context(), req.OwnerName, req.RepositoryName)
+	if err != nil {
+		logr.Error("error in getting repository:", zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	if repoDetails != nil {
+		code, res := h.response(http.StatusConflict, ResponseFormat{
+			Status:  false,
+			Message: fmt.Sprintf("Repository named %s/%s is been monitored already.", req.OwnerName, req.RepositoryName),
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
 	// logic
 	// todo: work on how to check if it exists already to return 429 error
 	if err := h.repositoryService.SaveRepository(r.Context(), req.OwnerName, req.RepositoryName, &req.StartTime); err != nil {
@@ -395,7 +421,18 @@ func (h Handler) MonitorRepository(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tasks.CallLoadCommitsTask(req.OwnerName, req.RepositoryName); err != nil {
+	repoDetails, err = h.repositoryService.GetRepository(r.Context(), req.OwnerName, req.RepositoryName)
+	if err != nil {
+		logr.Error("error in getting repository:", zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	if err := tasks.CallLoadCommitsTask(repoDetails.OwnerName, repoDetails.Name); err != nil {
 		logr.Error("error in creating task to load commits:", zap.Error(err))
 		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
 			Status:  false,
@@ -407,7 +444,7 @@ func (h Handler) MonitorRepository(w http.ResponseWriter, r *http.Request) {
 
 	code, res := h.response(http.StatusOK, ResponseFormat{
 		Status:  true,
-		Message: "Monitoring started for repository named " + req.RepositoryName,
+		Message: fmt.Sprintf("Monitoring started for repository named %s/%s", req.OwnerName, req.RepositoryName),
 	})
 	utils.SendResponse(w, code, res)
 }
@@ -453,19 +490,27 @@ func (h Handler) ResetCollection(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	/*
-		if err := h.repositoryService.SaveRepository(r.Context(), req.OwnerName, req.RepositoryName, &req.StartTime); err != nil {
-			logr.Error("error in saving repository:", zap.Error(err))
-			code, res := h.response(http.StatusInternalServerError, ResponseFormat{
-				Status:  false,
-				Message: messages.SomethingWentWrong,
-			})
-			utils.SendResponse(w, code, res)
-			return
-		}
-	*/
+	repoDetails, err := h.repositoryService.GetRepository(r.Context(), req.OwnerName, req.RepositoryName)
+	if err != nil {
+		logr.Error("error in getting repository details", zap.String("owner_name", req.OwnerName), zap.String("repo_name", req.RepositoryName), zap.Error(err))
+		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
+			Status:  false,
+			Message: messages.SomethingWentWrong,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
 
-	if err := h.repositoryService.UpdateRepositoryStartDate(r.Context(), req.OwnerName, req.RepositoryName, req.StartTime); err != nil {
+	if repoDetails == nil {
+		code, res := h.response(http.StatusNotFound, ResponseFormat{
+			Status:  false,
+			Message: messages.NotFound,
+		})
+		utils.SendResponse(w, code, res)
+		return
+	}
+
+	if err := h.repositoryService.UpdateRepositoryStartDate(r.Context(), repoDetails.OwnerName, repoDetails.Name, req.StartTime); err != nil {
 		logr.Error("error in updating start date", zap.Error(err))
 		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
 			Status:  false,
@@ -475,7 +520,7 @@ func (h Handler) ResetCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tasks.CallResetCommitsTask(req.OwnerName, req.OwnerName); err != nil {
+	if err := tasks.CallResetCommitsTask(repoDetails.OwnerName, repoDetails.Name); err != nil {
 		logr.Error("error in initiating the background task for reset commits", zap.Error(err))
 		code, res := h.response(http.StatusInternalServerError, ResponseFormat{
 			Status:  false,
@@ -487,7 +532,7 @@ func (h Handler) ResetCollection(w http.ResponseWriter, r *http.Request) {
 
 	code, res := h.response(http.StatusOK, ResponseFormat{
 		Status:  true,
-		Message: "Reset commits started for repository named  " + req.RepositoryName,
+		Message: fmt.Sprintf("Reset commits started for repository named %s/%s", repoDetails.OwnerName, repoDetails.Name),
 	})
 	utils.SendResponse(w, code, res)
 }

@@ -31,7 +31,6 @@ func (s *commitStore) getOrCreateRepository(ctx context.Context, tx *sqlx.Tx, re
 	err := tx.GetContext(ctx, &id, query, repo.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Set defaults for timestamps.
 			now := time.Now()
 			if repo.CreatedAt.IsZero() {
 				repo.CreatedAt = now
@@ -70,8 +69,8 @@ func (s *commitStore) getOrCreateAuthor(ctx context.Context, tx *sqlx.Tx, author
 	}
 
 	var id int
-	query := `SELECT id FROM authors WHERE name = $1 LIMIT 1`
-	err := tx.GetContext(ctx, &id, query, author.Name)
+	query := `SELECT id FROM authors WHERE email = $1 LIMIT 1`
+	err := tx.GetContext(ctx, &id, query, author.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			insertQuery := `
@@ -100,17 +99,21 @@ func (s *commitStore) getOrCreateAuthor(ctx context.Context, tx *sqlx.Tx, author
 
 // StoreCommits inserts a list of commits into the database.
 func (s *commitStore) StoreCommits(ctx context.Context, commits []domain.Commit) error {
+	if len(commits) == 0 {
+		return nil
+	}
+
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
 
 	commitQuery := `
-		INSERT INTO commits 
-			(uid, repository_id, author_id, url, sha, message, date, created_at)
-		VALUES 
-			(:uid, :repository_id, :author_id, :url, :sha, :message, :date, :created_at)
-	`
+        INSERT INTO commits 
+            (uid, repository_id, author_id, url, sha, message, commit_date, created_at)
+        VALUES 
+            (:uid, :repository_id, :author_id, :url, :sha, :message, :commit_date, :created_at)
+    `
 	for _, commit := range commits {
 		repoID, err := s.getOrCreateRepository(ctx, tx, &commit.Repository)
 		if err != nil {
@@ -146,7 +149,6 @@ func (s *commitStore) StoreCommits(ctx context.Context, commits []domain.Commit)
 }
 
 // GetCommitsByRepositoryName returns all commits for the repository with the given name.
-// The returned commits will have the Repository and Author fields pre-populated.
 func (s *commitStore) GetCommitsByRepositoryName(ctx context.Context, repositoryName string) ([]domain.Commit, error) {
 	var commits []domain.Commit
 
@@ -159,7 +161,7 @@ func (s *commitStore) GetCommitsByRepositoryName(ctx context.Context, repository
 		c.url,
 		c.sha,
 		c.message,
-		c.date,
+		c.commit_date,
 		c.created_at,
 		-- c.updated_at,
 		-- Repository fields with "Repository." prefix
@@ -187,7 +189,7 @@ func (s *commitStore) GetCommitsByRepositoryName(ctx context.Context, repository
 	JOIN repositories r ON c.repository_id = r.id
 	JOIN authors a ON c.author_id = a.id
 	WHERE r.name = $1
-	ORDER BY c.date DESC
+	ORDER BY c.commit_date DESC
 	`
 
 	err := s.db.SelectContext(ctx, &commits, query, repositoryName)
@@ -232,9 +234,9 @@ func (s *commitStore) UpsertCommits(ctx context.Context, commits []domain.Commit
 
 	query := `
 		INSERT INTO commits 
-			(uid, repository_id, author_id, sha, url, message, date, created_at)
+			(uid, repository_id, author_id, sha, url, message, commit_date, created_at)
 		VALUES 
-			(:uid, :repository_id, :author_id, :sha, :url, :message, :date, :created_at)
+			(:uid, :repository_id, :author_id, :sha, :url, :message, :commit_date, :created_at)
 		ON CONFLICT (repository_id, sha) DO UPDATE SET 
 			url = EXCLUDED.url,
 			message = EXCLUDED.message,
@@ -242,7 +244,6 @@ func (s *commitStore) UpsertCommits(ctx context.Context, commits []domain.Commit
 	`
 
 	for _, commit := range commits {
-		// Ensure the commit has a valid repository.
 		if commit.RepositoryID == 0 {
 			repoID, err := s.getOrCreateRepository(ctx, tx, &commit.Repository)
 			if err != nil {
@@ -252,7 +253,6 @@ func (s *commitStore) UpsertCommits(ctx context.Context, commits []domain.Commit
 			commit.RepositoryID = repoID
 		}
 
-		// Ensure the commit has a valid author.
 		if commit.AuthorID == 0 {
 			authorID, err := s.getOrCreateAuthor(ctx, tx, &commit.Author)
 			if err != nil {
@@ -262,7 +262,6 @@ func (s *commitStore) UpsertCommits(ctx context.Context, commits []domain.Commit
 			commit.AuthorID = authorID
 		}
 
-		// Set a UID.
 		if commit.UID == uuid.Nil {
 			commit.UID = uuid.New()
 		}

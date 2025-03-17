@@ -51,7 +51,6 @@ func (cs *commitService) GetCommitsByRepositoryName(ctx context.Context, owner, 
 	return commits, nil
 }
 
-// LoadCommits calls the github client to get the repository commits.
 func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName string) error {
 	logr := cs.logger.With(zap.String("method", "LoadCommits"))
 
@@ -64,9 +63,11 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 		return fmt.Errorf("repository with full name %s/%s does not exist in our system", ownerName, repoName)
 	}
 
-	// Call github client for the commits and save in the DB.
-	// Get all commits from GitHub; no since date since repo is new.
-	commitResponses, err := cs.githubClient.GetCommits(repoName, ownerName, nil, repoDetails.UntilDate)
+	var untilTime *time.Time
+	if !repoDetails.UntilDate.IsZero() {
+		untilTime = repoDetails.UntilDate
+	}
+	commitResponses, err := cs.githubClient.GetCommits(repoName, ownerName, nil, untilTime)
 	if err != nil {
 		return err
 	}
@@ -80,7 +81,7 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 			Message: com.Commit.Message,
 			Repository: domain.Repository{
 				Name:                repoDetails.Name,
-				OwnerName:           ownerName,
+				OwnerName:           repoDetails.OwnerName,
 				Description:         repoDetails.Description,
 				URL:                 repoDetails.URL,
 				ProgrammingLanguage: repoDetails.ProgrammingLanguage,
@@ -89,15 +90,15 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 				WatchersCount:       repoDetails.WatchersCount,
 				OpenIssuesCount:     repoDetails.OpenIssuesCount,
 				UntilDate:           repoDetails.UntilDate,
-				SinceDate:           time.Now(), // Set the initial SinceDate to now.
+				SinceDate:           time.Now(),
 				CreatedAt:           time.Now(),
 			},
 			Author: domain.Author{
 				Name:  com.Commit.Author.Name,
 				Email: com.Commit.Author.Email,
 			},
-			Date:      com.Commit.Author.Date,
-			CreatedAt: time.Now(),
+			CommitDate: com.Commit.Author.Date,
+			CreatedAt:  time.Now(),
 		}
 		commits = append(commits, newCommit)
 	}
@@ -111,6 +112,97 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 	logr.Info("loaded commits for repository successfully", zap.String("owner_name", repoDetails.OwnerName), zap.String("repo_name", repoDetails.Name))
 
 	return nil
+}
+
+func (cs *commitService) LoadCommitsOLD(ctx context.Context, ownerName, repoName string) error {
+	logr := cs.logger.With(zap.String("method", "LoadCommits"))
+
+	repoDetails, err := cs.repositoryService.GetRepository(ctx, ownerName, repoName)
+	if err != nil {
+		return err
+	}
+	if repoDetails == nil {
+		return fmt.Errorf("repository %s/%s does not exist in our system", ownerName, repoName)
+	}
+
+	// Create a buffered channel for commit responses.
+	commitCh := make(chan githubapi.CommitResponse, 200)
+
+	// Launch the concurrent GitHub client to fetch commits.
+	go func() {
+		// Ensure the channel is closed when done.
+		defer close(commitCh)
+		err := cs.githubClient.GetCommitsNew(ctx, repoName, ownerName, &repoDetails.SinceDate, repoDetails.UntilDate, 30, commitCh)
+		if err != nil {
+			logr.Error("Error fetching commits", zap.Error(err))
+		} else {
+			logr.Info("Finished fetching commits from GitHub")
+		}
+	}()
+
+	var commits []domain.Commit
+	batchSize := 50
+	commitCount := 0
+
+	// For-select loop to process incoming commits.
+	for {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context canceled while processing commits")
+		case commitResp, ok := <-commitCh:
+			if !ok {
+				// Channel closed: save any remaining commits.
+				logr.Info("Commit channel closed", zap.Int("totalCommitsReceived", commitCount))
+				if len(commits) > 0 {
+					if err := cs.commitRepo.StoreCommits(ctx, commits); err != nil {
+						return fmt.Errorf("failed to store remaining commits: %w", err)
+					}
+					logr.Info("Stored final batch of commits", zap.Int("batchSize", len(commits)))
+				}
+				logr.Info("Loaded all commits successfully", zap.Int("totalCommitsSaved", commitCount))
+				return nil
+			}
+
+			commitCount++
+			logr.Debug("Received commit", zap.String("sha", commitResp.SHA))
+			// Convert CommitResponse to domain.Commit.
+			newCommit := domain.Commit{
+				SHA:     commitResp.SHA,
+				URL:     commitResp.URL,
+				Message: commitResp.Commit.Message,
+				Author: domain.Author{
+					Name:  commitResp.Commit.Author.Name,
+					Email: commitResp.Commit.Author.Email,
+				},
+				CommitDate: commitResp.Commit.Author.Date,
+				CreatedAt:  time.Now(),
+				Repository: domain.Repository{
+					Name:                repoDetails.Name,
+					OwnerName:           repoDetails.OwnerName,
+					Description:         repoDetails.Description,
+					URL:                 repoDetails.URL,
+					ProgrammingLanguage: repoDetails.ProgrammingLanguage,
+					ForksCount:          repoDetails.ForksCount,
+					StarsCount:          repoDetails.StarsCount,
+					WatchersCount:       repoDetails.WatchersCount,
+					OpenIssuesCount:     repoDetails.OpenIssuesCount,
+					UntilDate:           repoDetails.UntilDate,
+					SinceDate:           time.Now(), // Update as needed.
+					CreatedAt:           time.Now(),
+				},
+			}
+
+			commits = append(commits, newCommit)
+			// If batch is full, save to DB and reset the slice.
+			if len(commits) >= batchSize {
+				logr.Info("Storing batch of commits", zap.Int("batchSize", len(commits)))
+				if err := cs.commitRepo.StoreCommits(ctx, commits); err != nil {
+					return fmt.Errorf("failed to store commit batch: %w", err)
+				}
+				commits = commits[:0]
+			}
+		}
+	}
 }
 
 func (cs *commitService) GetLatestCommits(ctx context.Context, ownerName, repoName string) error {
@@ -138,7 +230,6 @@ func (cs *commitService) GetLatestCommits(ctx context.Context, ownerName, repoNa
 			URL:     com.URL,
 			Message: com.Commit.Message,
 			Repository: domain.Repository{
-				// Use the existing repository details.
 				Name:                repoDetails.Name,
 				OwnerName:           repoDetails.OwnerName,
 				Description:         repoDetails.Description,
@@ -156,20 +247,18 @@ func (cs *commitService) GetLatestCommits(ctx context.Context, ownerName, repoNa
 				Name:  com.Commit.Author.Name,
 				Email: com.Commit.Author.Email,
 			},
-			Date:      com.Commit.Author.Date,
-			CreatedAt: time.Now(),
+			CommitDate: com.Commit.Author.Date,
+			CreatedAt:  time.Now(),
 		}
 		commitsToUpsert = append(commitsToUpsert, commit)
 	}
 
-	// If there are new or updated commits, upsert them.
 	if len(commitsToUpsert) > 0 {
 		err = cs.commitRepo.UpsertCommits(ctx, commitsToUpsert)
 		if err != nil {
 			return err
 		}
 		// Update the repository's SinceDate to the current time.
-
 		err = cs.repositoryService.UpdateRepositorySinceDate(ctx, repoDetails.OwnerName, repoDetails.Name, time.Now())
 		if err != nil {
 			logr.Error("failed to update repository since date", zap.Error(err))
@@ -195,7 +284,6 @@ func (cs *commitService) GetLatestCommitsNew(ctx context.Context) error {
 			return err
 		}
 
-		// Convert GitHub commit responses to store.Commit objects.
 		var commitsToUpsert []domain.Commit
 		for _, com := range commitResponses {
 			commit := domain.Commit{
@@ -220,13 +308,12 @@ func (cs *commitService) GetLatestCommitsNew(ctx context.Context) error {
 					Name:  com.Commit.Author.Name,
 					Email: com.Commit.Author.Email,
 				},
-				Date:      com.Commit.Author.Date,
-				CreatedAt: time.Now(),
+				CommitDate: com.Commit.Author.Date,
+				CreatedAt:  time.Now(),
 			}
 			commitsToUpsert = append(commitsToUpsert, commit)
 		}
 
-		// If there are new or updated commits, upsert them.
 		if len(commitsToUpsert) > 0 {
 			err = cs.commitRepo.UpsertCommits(ctx, commitsToUpsert)
 			if err != nil {
@@ -236,7 +323,6 @@ func (cs *commitService) GetLatestCommitsNew(ctx context.Context) error {
 			// Update the repository's SinceDate to the current time.
 			err = cs.repositoryService.UpdateRepositorySinceDate(ctx, repoDetails.OwnerName, repoDetails.Name, time.Now())
 			if err != nil {
-				// log and move on
 				logr.Error("failed to update repository since date", zap.Error(err))
 				continue
 			}
@@ -249,19 +335,19 @@ func (cs *commitService) GetLatestCommitsNew(ctx context.Context) error {
 
 func (cs *commitService) ResetCommits(ctx context.Context, ownerName, repoName string) error {
 	logr := cs.logger.With(zap.String("method", "ResetCommits"))
-	repoDets, err := cs.repositoryService.GetRepository(ctx, ownerName, repoName)
+	repoDetails, err := cs.repositoryService.GetRepository(ctx, ownerName, repoName)
 	if err != nil {
 		return err
 	}
 
-	if err := cs.commitRepo.DeleteCommitsByRepositoryID(ctx, uint(repoDets.ID)); err != nil {
+	if err := cs.commitRepo.DeleteCommitsByRepositoryID(ctx, uint(repoDetails.ID)); err != nil {
 		return err
 	}
 
-	if err := tasks.CallLoadCommitsTask(repoDets.OwnerName, repoDets.Name); err != nil {
+	if err := tasks.CallLoadCommitsTask(repoDetails.OwnerName, repoDetails.Name); err != nil {
 		return err
 	}
 
-	logr.Debug("reset collection for", zap.String("repo_name", repoDets.Name))
+	logr.Debug("reset collection for", zap.String("repo_name", repoDetails.Name))
 	return nil
 }

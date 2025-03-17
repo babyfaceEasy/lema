@@ -24,11 +24,12 @@ func NewRepositoryStore(db *sql.DB) repositories.RepositoryRepository {
 
 // ByName returns the repository details if it exists in the system.
 func (s *repositoryStore) ByName(ctx context.Context, ownerName, repoName string) (*domain.Repository, error) {
-	const query = `SELECT * FROM repositories WHERE name = $1 and owner_name = $2`
+	const query = `SELECT * FROM repositories WHERE name ILIKE $1 AND owner_name ILIKE $2`
 
 	var repo domain.Repository
 	if err := s.db.GetContext(ctx, &repo, query, repoName, ownerName); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Printf("not found name = %s and owner_name = %s\n", repoName, ownerName)
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to find repository by name and owner: %w", err)
@@ -37,6 +38,7 @@ func (s *repositoryStore) ByName(ctx context.Context, ownerName, repoName string
 	return &repo, nil
 }
 
+// GetAll returns all the repositories stored in our DB.
 func (s *repositoryStore) GetAll(ctx context.Context) ([]domain.Repository, error) {
 	const query = `SELECT * FROM repositories`
 
@@ -148,6 +150,8 @@ func (s *repositoryStore) CreateOrUpdateOLD(ctx context.Context, repo domain.Rep
 	return nil
 }
 
+// CreateOrUpdate creates a new repository record if one does not exist (by name),
+// or updates the existing record with the provided fields.
 func (s *repositoryStore) CreateOrUpdate(ctx context.Context, repo domain.Repository) error {
 	log.Printf("repo being passed: %+v\n", repo)
 	var id int
@@ -224,6 +228,7 @@ func (s *repositoryStore) CreateOrUpdate(ctx context.Context, repo domain.Reposi
 	return nil
 }
 
+// UpdateStartDate updates the until_date field.
 func (s *repositoryStore) UpdateStartDate(ctx context.Context, ownerName string, repositoryName string, newStartDate time.Time) error {
 	var dateParam interface{}
 	if newStartDate.IsZero() {
