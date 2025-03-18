@@ -9,6 +9,7 @@ import (
 	"github.com/babyfaceeasy/lema/internal/integrations/githubapi"
 	"github.com/babyfaceeasy/lema/internal/repositories"
 	"github.com/babyfaceeasy/lema/internal/tasks"
+	"github.com/babyfaceeasy/lema/pkg/pagination"
 	"go.uber.org/zap"
 )
 
@@ -40,15 +41,17 @@ func (cs *commitService) GetTopCommitAuthors(ctx context.Context, owner, name st
 	return authors, nil
 }
 
-func (cs *commitService) GetCommitsByRepositoryName(ctx context.Context, owner, name string) ([]domain.Commit, error) {
+func (cs *commitService) GetCommitsByRepositoryName(ctx context.Context, owner, name string, page, pageSize int) ([]domain.Commit, *pagination.Pagination, error) {
 	logr := cs.logger.With(zap.String("method", "GetCommitsByRepositoryName"))
 
-	commits, err := cs.commitRepo.GetCommitsByRepositoryName(ctx, name)
+	commits, totalItems, err := cs.commitRepo.GetCommitsByRepositoryName(ctx, owner, name, page, pageSize)
 	if err != nil {
 		logr.Error("error in GetCommitsByRepositoryName", zap.Error(err))
-		return nil, err
+		return nil, nil, err
 	}
-	return commits, nil
+
+	pg := pagination.NewPagination(page, pageSize, totalItems)
+	return commits, pg, nil
 }
 
 func (cs *commitService) LoadCommitsOLD(ctx context.Context, ownerName, repoName string) error {
@@ -130,7 +133,6 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 
 	// Launch the concurrent GitHub client to fetch commits.
 	go func() {
-		// Ensure the channel is closed when done.
 		defer close(commitCh)
 		err := cs.githubClient.GetCommitsNew(ctx, repoName, ownerName, nil, repoDetails.UntilDate, 100, commitCh)
 		if err != nil {
@@ -144,7 +146,6 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 	batchSize := 50
 	commitCount := 0
 
-	// For-select loop to process incoming commits.
 	for {
 		select {
 		case <-ctx.Done():
@@ -165,7 +166,6 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 
 			commitCount++
 			logr.Debug("Received commit", zap.String("sha", commitResp.SHA))
-			// Convert CommitResponse to domain.Commit.
 			newCommit := domain.Commit{
 				SHA:     commitResp.SHA,
 				URL:     commitResp.URL,
@@ -193,7 +193,6 @@ func (cs *commitService) LoadCommits(ctx context.Context, ownerName, repoName st
 			}
 
 			commits = append(commits, newCommit)
-			// If batch is full, save to DB and reset the slice.
 			if len(commits) >= batchSize {
 				logr.Info("Storing batch of commits", zap.Int("batchSize", len(commits)))
 				if err := cs.commitRepo.StoreCommits(ctx, commits); err != nil {
@@ -222,7 +221,6 @@ func (cs *commitService) GetLatestCommits(ctx context.Context, ownerName, repoNa
 		return err
 	}
 
-	// Convert GitHub commit responses to store.Commit objects.
 	var commitsToUpsert []domain.Commit
 	for _, com := range commitResponses {
 		commit := domain.Commit{
@@ -285,7 +283,6 @@ func (cs *commitService) GetLatestCommitsNew(ctx context.Context, ownerName, rep
 
 	// Launch the concurrent GitHub client to fetch commits.
 	go func() {
-		// Ensure the channel is closed when done.
 		defer close(commitCh)
 		err := cs.githubClient.GetCommitsNew(ctx, repoName, ownerName, &repoDetails.SinceDate, repoDetails.UntilDate, 100, commitCh)
 		if err != nil {
@@ -299,7 +296,6 @@ func (cs *commitService) GetLatestCommitsNew(ctx context.Context, ownerName, rep
 	batchSize := 50
 	commitCount := 0
 
-	// For-select loop to process incoming commits.
 	for {
 		select {
 		case <-ctx.Done():
@@ -320,7 +316,6 @@ func (cs *commitService) GetLatestCommitsNew(ctx context.Context, ownerName, rep
 
 			commitCount++
 			logr.Debug("Received commit", zap.String("sha", commitResp.SHA))
-			// Convert CommitResponse to domain.Commit.
 			newCommit := domain.Commit{
 				SHA:     commitResp.SHA,
 				URL:     commitResp.URL,

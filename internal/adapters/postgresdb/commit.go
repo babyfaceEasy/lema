@@ -8,6 +8,7 @@ import (
 
 	"github.com/babyfaceeasy/lema/internal/domain"
 	"github.com/babyfaceeasy/lema/internal/repositories"
+	"github.com/babyfaceeasy/lema/pkg/pagination"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -149,7 +150,7 @@ func (s *commitStore) StoreCommits(ctx context.Context, commits []domain.Commit)
 }
 
 // GetCommitsByRepositoryName returns all commits for the repository with the given name.
-func (s *commitStore) GetCommitsByRepositoryName(ctx context.Context, repositoryName string) ([]domain.Commit, error) {
+func (s *commitStore) GetCommitsByRepositoryName(ctx context.Context, ownerName, repositoryName string, page, pageSize int) ([]domain.Commit, int, error) {
 	var commits []domain.Commit
 
 	query := `
@@ -188,16 +189,27 @@ func (s *commitStore) GetCommitsByRepositoryName(ctx context.Context, repository
 	FROM commits c
 	JOIN repositories r ON c.repository_id = r.id
 	JOIN authors a ON c.author_id = a.id
-	WHERE r.name = $1
+	WHERE r.name = $1 AND r.owner_name = $2
 	ORDER BY c.commit_date DESC
 	`
 
-	err := s.db.SelectContext(ctx, &commits, query, repositoryName)
+	paginatedQuery := pagination.ApplyToQuery(query, page, pageSize)
+
+	err := s.db.SelectContext(ctx, &commits, paginatedQuery, repositoryName, ownerName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch commits for repository %s: %w", repositoryName, err)
+		return nil, 0, fmt.Errorf("failed to fetch commits for repository %s: %w", repositoryName, err)
 	}
 
-	return commits, nil
+	// total Items query
+	var totalItems int
+	countQuery := `SELECT COUNT(*) FROM commits
+                   JOIN repositories ON commits.repository_id = repositories.id
+                   WHERE repositories.name = $1 AND repositories.owner_name = $2`
+	if err := s.db.GetContext(ctx, &totalItems, countQuery, repositoryName, ownerName); err != nil {
+		return nil, 0, fmt.Errorf("failed to count total commits: %w", err)
+	}
+
+	return commits, totalItems, nil
 }
 
 // GetTopCommitAuthors returns the top N commit authors by commit count.

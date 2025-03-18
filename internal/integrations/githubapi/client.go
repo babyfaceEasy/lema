@@ -81,8 +81,6 @@ type RepositoryResponse struct {
 }
 
 func parseLastPage(linkHeader string) int {
-	// Example Link header:
-	// <https://api.github.com/repositories/120360765/commits?page=2>; rel="next", <https://api.github.com/repositories/120360765/commits?page=51757>; rel="last"
 	if linkHeader == "" {
 		return 1
 	}
@@ -99,7 +97,7 @@ func parseLastPage(linkHeader string) int {
 			if len(urlPart) >= 2 && urlPart[0] == '<' && urlPart[len(urlPart)-1] == '>' {
 				urlPart = urlPart[1 : len(urlPart)-1]
 			}
-			// Parse page parameter from the URL.
+
 			idx := strings.Index(urlPart, "page=")
 			if idx == -1 {
 				continue
@@ -206,10 +204,10 @@ func (c *Client) GetCommits(repositoryName, ownerName string, since, until *time
 		}
 
 		q := req.URL.Query()
-		if since != nil {
+		if since != nil || !since.IsZero() {
 			q.Set("since", since.UTC().Format(time.RFC3339))
 		}
-		if until != nil {
+		if until != nil || !until.IsZero() {
 			q.Set("until", until.UTC().Format(time.RFC3339))
 		}
 		// Add page size.
@@ -262,13 +260,13 @@ func (c *Client) GetCommits(repositoryName, ownerName string, since, until *time
 // GetCommitsNew fetches commits concurrently using a worker pool and sends each CommitResponse
 // through commitCh. It also adds an authorization header if c.authToken is non-empty.
 func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName string, since, until *time.Time, pageSize int, commitCh chan<- CommitResponse) error {
-	// Fetch page 1 synchronously.
 	page := 1
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/%s/%s/commits", c.baseURL, ownerName, repositoryName), nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request for page 1: %w", err)
 	}
-	// Add the Authorization header if token is provided.
+
+	// Authorization Token
 	if c.config.GithubToken != "" {
 		req.Header.Set("Authorization", c.config.GithubToken)
 	}
@@ -277,7 +275,7 @@ func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName st
 	if since != nil {
 		q.Set("since", since.UTC().Format(time.RFC3339))
 	}
-	if !until.IsZero(){
+	if !until.IsZero() {
 		q.Set("until", until.UTC().Format(time.RFC3339))
 	}
 	q.Set("per_page", fmt.Sprintf("%d", pageSize))
@@ -335,7 +333,8 @@ func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName st
 				errCh <- fmt.Errorf("failed to create request for page %d: %w", pageNum, err)
 				return
 			}
-			// Add the Authorization header if token is provided.
+
+			// Authorization Token
 			if c.config.GithubToken != "" {
 				req.Header.Set("Authorization", c.config.GithubToken)
 			}
@@ -428,7 +427,7 @@ func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName st
 }
 
 func (c *Client) GetRepositoryDetails(repositoryName, ownerName string) (*RepositoryResponse, error) {
-	// logr := c.logger.With(zap.String("method", "GetRepositoryDetails"))
+	logr := c.logger.With(zap.String("method", "GetRepositoryDetails"))
 	endpoint := fmt.Sprintf(c.baseURL+"/%s/%s", ownerName, repositoryName)
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
@@ -459,9 +458,7 @@ func (c *Client) GetRepositoryDetails(repositoryName, ownerName string) (*Reposi
 			c.logger.Error("Unexpected status code", zap.Int("status code", resp.StatusCode), zap.Error(err))
 		}
 
-		// logr.Sugar().Infof("details of returned error: %v\n", ghErr)
-
-		// logr.Debug("Github client failed", zap.Int("status_code", resp.StatusCode))
+		logr.Debug("Github client failed", zap.Int("status_code", resp.StatusCode))
 
 		return nil, errors.New(ghErr.Message)
 	}
