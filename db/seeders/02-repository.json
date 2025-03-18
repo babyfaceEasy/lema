@@ -1,0 +1,33 @@
+{
+  "table": "repositories",
+    "columns": [
+      "name",
+      "owner_name",
+      "description",
+      "url",
+      "programming_language",
+      "forks_count",
+      "stars_count",
+      "watchers_count",
+      "open_issues_count",
+      "until_date",
+      "since_date",
+      "created_at"
+    ],
+    "values": [
+      [
+        "chromium",
+        "chromium",
+        "The official GitHub mirror of the Chromium source",
+        "https://api.github.com/repos/chromium/chromium",
+        "C++",
+        0,
+        20128,
+        20128,
+        0,
+        "0001-01-01 01:00:00.000",
+        "0001-01-01 01:00:00.000",
+        "2025-03-17 22:49:06.013"
+      ]
+    ]
+}

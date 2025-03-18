@@ -159,7 +159,7 @@ func CallLatestCommitsTask(owner, name string) error {
 		return err
 	}
 
-	log.Printf(" [*] Successfully enqueued task: %+v", *info)
+	log.Printf(" [*] Successfully enqueued task: %s\n", info.Type)
 
 	return nil
 }
@@ -171,7 +171,8 @@ func (t *Task) HandleLatestCommitsTask(ctx context.Context, a *asynq.Task) error
 		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
 	}
 
-	return t.commitService.GetLatestCommits(ctx, p.RepositoryOwner, p.RepositoryName)
+	// return t.commitService.GetLatestCommits(ctx, p.RepositoryOwner, p.RepositoryName)
+	return t.commitService.GetLatestCommitsNew(ctx, p.RepositoryOwner, p.RepositoryName)
 }
 
 func CallResetCommitsTask(owner, name string) error {
@@ -186,7 +187,7 @@ func CallResetCommitsTask(owner, name string) error {
 		return err
 	}
 
-	log.Printf(" [*] Successfully enqueued task: %+v", *info)
+	log.Printf(" [*] Successfully enqueued task: %s\n", info.Type)
 
 	return nil
 }
