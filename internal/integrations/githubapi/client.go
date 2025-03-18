@@ -277,12 +277,14 @@ func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName st
 	if since != nil {
 		q.Set("since", since.UTC().Format(time.RFC3339))
 	}
-	if until != nil {
+	if !until.IsZero(){
 		q.Set("until", until.UTC().Format(time.RFC3339))
 	}
 	q.Set("per_page", fmt.Sprintf("%d", pageSize))
 	q.Set("page", fmt.Sprintf("%d", page))
 	req.URL.RawQuery = q.Encode()
+
+	c.logger.Sugar().Infof("URL: %s", req.URL.String())
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -310,7 +312,6 @@ func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName st
 	// If there's only one page, return.
 	if lastPage <= 1 {
 		c.logger.Info("No more pages of commits")
-		close(commitCh) // Close the channel to signal completion.
 		return nil
 	}
 

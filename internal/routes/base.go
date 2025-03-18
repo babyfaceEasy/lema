@@ -41,9 +41,5 @@ func RegisterRoutes(
 	// commits
 	apiV1.HandleFunc("/commit-authors/top", handler.GetTopCommitAuthors).Methods("GET")
 
-	// commit routes
-	// registerCommitRoutes(apiV1)
-	// registerRepositoryRoutes(apiV1)
-
 	return router
 }

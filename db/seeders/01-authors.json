@@ -1,0 +1,15 @@
+{
+    "table": "authors",
+    "columns": [
+      "name",
+      "email",
+      "created_at"
+    ],
+    "values": [
+      [
+        "Dominik Röttsches",
+        "drott@chromium.org",
+        "2025-03-12T10:35:55Z"
+      ]
+    ]
+  }

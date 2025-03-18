@@ -12,6 +12,16 @@ migrate-down:
 	@echo "Running migrations..."
 	goose -dir ./db/migrations postgres "$$DATABASE_URL" down
 
+# Seed the DB with fixed data
+seed:
+	@echo "Running seeders..."
+	go run cmd/cli/seed.go
+
+# Seed the DB with live data
+seed-live:
+	@echo "Running seeders..."
+	chmod +x seed_db.sh
+	./seed_db.sh
 
 # Start the app using go run
 run:

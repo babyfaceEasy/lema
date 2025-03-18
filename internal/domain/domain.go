@@ -10,7 +10,7 @@ type CommitService interface {
 	GetCommitsByRepositoryName(ctx context.Context, owner, name string) ([]Commit, error)
 	LoadCommits(ctx context.Context, owner string, name string) error
 	GetLatestCommits(ctx context.Context, owner string, name string) error
-	GetLatestCommitsNew(ctx context.Context) error
+	GetLatestCommitsNew(ctx context.Context, owner string, name string) error
 	ResetCommits(ctx context.Context, owner string, name string) error
 }
 
