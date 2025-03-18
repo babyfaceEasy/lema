@@ -199,8 +199,8 @@ func (c *Client) GetCommits(repositoryName, ownerName string, since, until *time
 		}
 
 		// Set the Authorization header if token is available.
-		if c.config.GithubToken != "" {
-			req.Header.Set("Authorization", c.config.GithubToken)
+		if c.config.GetGithubToken() != "" {
+			req.Header.Set("Authorization", c.config.GetGithubToken())
 		}
 
 		q := req.URL.Query()
@@ -267,8 +267,8 @@ func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName st
 	}
 
 	// Authorization Token
-	if c.config.GithubToken != "" {
-		req.Header.Set("Authorization", c.config.GithubToken)
+	if c.config.GetGithubToken() != "" {
+		req.Header.Set("Authorization", c.config.GetGithubToken())
 	}
 
 	q := req.URL.Query()
@@ -335,8 +335,8 @@ func (c *Client) GetCommitsNew(ctx context.Context, repositoryName, ownerName st
 			}
 
 			// Authorization Token
-			if c.config.GithubToken != "" {
-				req.Header.Set("Authorization", c.config.GithubToken)
+			if c.config.GetGithubToken() != "" {
+				req.Header.Set("Authorization", c.config.GetGithubToken())
 			}
 
 			q := req.URL.Query()
@@ -435,8 +435,8 @@ func (c *Client) GetRepositoryDetails(repositoryName, ownerName string) (*Reposi
 	}
 
 	// Set the Authorization header if token is available.
-	if c.config.GithubToken != "" {
-		req.Header.Set("Authorization", c.config.GithubToken)
+	if c.config.GetGithubToken() != "" {
+		req.Header.Set("Authorization", c.config.GetGithubToken())
 	}
 
 	resp, err := c.httpClient.Do(req)

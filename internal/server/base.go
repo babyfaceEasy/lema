@@ -33,13 +33,13 @@ func (s *ApiServer) Start(ctx context.Context, diContainer *container.Container)
 
 	mux := routes.RegisterRoutes(s.config, s.logger, s.store, diContainer.GetCommitService(), diContainer.GetRepositoryService())
 	server := &http.Server{
-		Addr:    net.JoinHostPort(s.config.ApiServerHost, s.config.ApiServerPort),
+		Addr:    net.JoinHostPort(s.config.GetApiServerHost(), s.config.GetApiServerPort()),
 		Handler: mux,
 	}
 
 	// handle start up server
 	go func() {
-		s.logger.Info("apiserver running", zap.String("port", s.config.ApiServerPort))
+		s.logger.Info("apiserver running", zap.String("port", s.config.GetApiServerHost()))
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			s.logger.Error("apiserver failed to listen and serve", zap.Error(err))
 		}

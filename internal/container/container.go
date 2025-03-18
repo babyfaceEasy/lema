@@ -33,7 +33,7 @@ func NewContainer(config *config.Config, logger *zap.Logger) *Container {
 	repositoryRepo := postgresdb.NewRepositoryStore(dbConn)
 
 	// clients
-	githubClient := githubapi.NewClient(config.GithubBaseUrl, &http.Client{Timeout: 10 * time.Second}, logger, config)
+	githubClient := githubapi.NewClient(config.GetGithubBaseUrl(), &http.Client{Timeout: 10 * time.Second}, logger, config)
 
 	repositorySvc := repositoryservice.NewRepositoryService(logger, repositoryRepo, githubClient)
 	commitSvc := commitsservice.NewCommitService(githubClient, commitRepo, logger, repositorySvc)

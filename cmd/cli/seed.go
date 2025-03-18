@@ -19,7 +19,7 @@ func main() {
 	}
 
 	// logger
-	logr, err := logger.NewLogger(string(cfg.AppEnv))
+	logr, err := logger.NewLogger(string(cfg.GetAppEnv()))
 	if err != nil {
 		log.Fatalf("failed to initialize logger: %v", err)
 	}
