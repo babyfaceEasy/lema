@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/babyfaceeasy/lema/config"
@@ -12,7 +13,6 @@ import (
 	"github.com/pressly/goose/v3"
 	"go.uber.org/zap"
 )
-
 
 func NewPostgresDb(conf *config.Config) (*sql.DB, error) {
 	dsn := conf.DatabaseUrl()
@@ -25,6 +25,7 @@ func NewPostgresDb(conf *config.Config) (*sql.DB, error) {
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
+		log.Println("password is", conf.DatabaseUrl())
 		return nil, fmt.Errorf("failed to ping postgres: %w", err)
 	}
 
@@ -32,7 +33,7 @@ func NewPostgresDb(conf *config.Config) (*sql.DB, error) {
 }
 
 func NewRedisDb(conf *config.Config) (*redis.Client, error) {
-	opt, err := redis.ParseURL(conf.RedisURL)
+	opt, err := redis.ParseURL(conf.GetRedisURL())
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse redis URL: %w", err)
 	}

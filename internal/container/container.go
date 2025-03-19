@@ -11,6 +11,7 @@ import (
 	"github.com/babyfaceeasy/lema/internal/domain"
 	"github.com/babyfaceeasy/lema/internal/integrations/githubapi"
 	"github.com/babyfaceeasy/lema/internal/services/commitsservice"
+	"github.com/babyfaceeasy/lema/internal/services/githubservice"
 	"github.com/babyfaceeasy/lema/internal/services/repositoryservice"
 	"go.uber.org/zap"
 )
@@ -33,10 +34,11 @@ func NewContainer(config *config.Config, logger *zap.Logger) *Container {
 	repositoryRepo := postgresdb.NewRepositoryStore(dbConn)
 
 	// clients
-	githubClient := githubapi.NewClient(config.GithubBaseUrl, &http.Client{Timeout: 10 * time.Second}, logger, config)
+	githubClient := githubapi.NewClient(config.GetGithubBaseUrl(), &http.Client{Timeout: 10 * time.Second}, logger, config)
 
-	repositorySvc := repositoryservice.NewRepositoryService(logger, repositoryRepo, githubClient)
-	commitSvc := commitsservice.NewCommitService(githubClient, commitRepo, logger, repositorySvc)
+	githubSvc := githubservice.NewGithubService(githubClient, logger)
+	repositorySvc := repositoryservice.NewRepositoryService(logger, repositoryRepo, githubSvc)
+	commitSvc := commitsservice.NewCommitService(githubSvc, commitRepo, logger, repositorySvc, githubClient)
 
 	return &Container{
 		config:            config,

@@ -10,7 +10,7 @@ import (
 func (h Handler) Ping(w http.ResponseWriter, r *http.Request) {
 	R := ResponseFormat{}
 
-	R.Message = fmt.Sprintf("welcome to %s", h.config.AppName)
+	R.Message = fmt.Sprintf("welcome to %s", h.config.GetAppName())
 	code, res := h.response(http.StatusOK, R)
 	utils.SendResponse(w, code, res)
 }

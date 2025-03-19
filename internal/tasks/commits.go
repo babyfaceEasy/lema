@@ -39,7 +39,7 @@ func (t *Task) HandleCommitsUpdateTaskOLD(ctx context.Context, a *asynq.Task) er
 	}
 
 	// Create a GitHub client.
-	githubClient := githubapi.NewClient(t.config.GithubBaseUrl, &http.Client{Timeout: 10 * time.Second}, t.logger, t.config)
+	githubClient := githubapi.NewClient(t.config.GetGithubBaseUrl(), &http.Client{Timeout: 10 * time.Second}, t.logger, t.config)
 
 	for _, repoDetails := range repos {
 

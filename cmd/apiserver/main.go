@@ -28,13 +28,14 @@ func run() error {
 	defer cancel()
 
 	// load configurations
-	cfg, err := config.New()
+	// cfg, err := config.New()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		return err
 	}
 
 	// logger
-	logr, err := logger.NewLogger(string(cfg.AppEnv))
+	logr, err := logger.NewLogger(string(cfg.GetAppEnv()))
 	if err != nil {
 		return err
 	}

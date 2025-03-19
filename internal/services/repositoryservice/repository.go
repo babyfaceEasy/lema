@@ -6,23 +6,23 @@ import (
 	"time"
 
 	"github.com/babyfaceeasy/lema/internal/domain"
-	"github.com/babyfaceeasy/lema/internal/integrations/githubapi"
 	"github.com/babyfaceeasy/lema/internal/repositories"
+	"github.com/babyfaceeasy/lema/internal/services/githubservice"
 	"go.uber.org/zap"
 )
 
 type repositoryService struct {
 	logger         *zap.Logger
 	repoRepository repositories.RepositoryRepository
-	githubClient   *githubapi.Client
+	githubService  githubservice.GitHubService
 }
 
-func NewRepositoryService(logger *zap.Logger, repoRepository repositories.RepositoryRepository, gitHubService *githubapi.Client) domain.RepositoryService {
+func NewRepositoryService(logger *zap.Logger, repoRepository repositories.RepositoryRepository, githubService githubservice.GitHubService) domain.RepositoryService {
 	logger = logger.With(zap.String("package", "repositoryservice"))
 	return &repositoryService{
 		logger:         logger,
 		repoRepository: repoRepository,
-		githubClient:   gitHubService,
+		githubService:  githubService,
 	}
 }
 
@@ -65,7 +65,7 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 		return fmt.Errorf("repository name : %s/%s already in our system", owner, repo)
 	}
 
-	repoDetails, err := rs.githubClient.GetRepositoryDetails(repo, owner)
+	repoDetails, err := rs.githubService.GetRepositoryDetails(repo, owner)
 	if err != nil {
 		logr.Error("error in getting repository details", zap.Error(err))
 		return err
@@ -73,7 +73,7 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 
 	newRepo := domain.Repository{
 		Name:                repoDetails.Name,
-		OwnerName:           repoDetails.Owner.Login,
+		OwnerName:           repoDetails.OwnerName,
 		Description:         repoDetails.Description,
 		URL:                 repoDetails.URL,
 		ProgrammingLanguage: repoDetails.ProgrammingLanguage,
@@ -82,8 +82,8 @@ func (rs *repositoryService) SaveRepository(ctx context.Context, owner string, r
 		WatchersCount:       repoDetails.WatchersCount,
 		OpenIssuesCount:     repoDetails.OpenIssuesCount,
 		UntilDate:           startTime,
-		SinceDate:           time.Now(),
-		CreatedAt:           time.Now(),
+		// SinceDate:           time.Now(),
+		CreatedAt: time.Now(),
 	}
 
 	logr.Sugar().Debugf("data to be saved into db%+v\n", newRepo)

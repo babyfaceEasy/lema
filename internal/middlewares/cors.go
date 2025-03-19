@@ -11,7 +11,7 @@ func (m Middleware) CORS(next http.Handler) http.Handler {
 		if origin != "" {
 			originMap := make(map[string]string)
 			// assume M.config.CorsWhiteLisT returns a comma-separated string
-			origins := strings.Split(m.config.CorsWhiteList, ",")
+			origins := strings.Split(m.config.GetCorsWhiteList(), ",")
 			for _, s := range origins {
 				trimmed := strings.TrimSpace(s)
 				originMap[trimmed] = trimmed
