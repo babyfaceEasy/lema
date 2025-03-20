@@ -183,7 +183,8 @@ The core logic of the application is primarily located in the `internal` and `in
 #### 3. Reset Collection
 **Method**: POST  
 **URL**: `http://localhost:3000/v1/repositories/reset-collection`  
-**Sample Request**
+<br>
+**Sample Request**:
 ```json
 {
     "repo_name": "chromium",
@@ -233,7 +234,8 @@ The core logic of the application is primarily located in the `internal` and `in
 #### 5. Monitor a Repository
 **Method**: POST  
 **URL**: `http://localhost:300/api/repositories/monitor` 
-**Sample Request**
+<br>
+**Sample Request**:
 ```json
 {
     "repo_name": "chromium",
