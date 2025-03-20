@@ -11,7 +11,6 @@ type CommitService interface {
 	GetTopCommitAuthors(ctx context.Context, owner, name string, limit int) ([]CommitAuthor, error)
 	GetCommitsByRepositoryName(ctx context.Context, owner, name string, page, pageSize int) ([]Commit, *pagination.Pagination, error)
 	LoadCommits(ctx context.Context, owner string, name string) error
-	GetLatestCommits(ctx context.Context, owner string, name string) error
 	GetLatestCommitsNew(ctx context.Context, owner string, name string) error
 	ResetCommits(ctx context.Context, owner string, name string) error
 }

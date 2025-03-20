@@ -5,6 +5,7 @@ import (
 	"github.com/babyfaceeasy/lema/internal/domain"
 	"github.com/babyfaceeasy/lema/internal/handlers"
 	"github.com/babyfaceeasy/lema/internal/middlewares"
+	"github.com/babyfaceeasy/lema/internal/queue"
 	"github.com/babyfaceeasy/lema/internal/store"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -21,10 +22,11 @@ func RegisterRoutes(
 	store *store.Store,
 	commitSvc domain.CommitService,
 	repositorySvc domain.RepositoryService,
+	taskQueue queue.TaskQueue,
 ) *mux.Router {
 	router := mux.NewRouter()
 
-	handler = handlers.New(config, logger, store, commitSvc, repositorySvc)
+	handler = handlers.New(config, logger, store, commitSvc, repositorySvc, taskQueue)
 	middleware = middlewares.New(config, logger)
 
 	// global middlewares
