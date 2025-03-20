@@ -38,7 +38,7 @@ func NewContainer(config *config.Config, logger *zap.Logger) *Container {
 
 	githubSvc := githubservice.NewGithubService(githubClient, logger)
 	repositorySvc := repositoryservice.NewRepositoryService(logger, repositoryRepo, githubSvc)
-	commitSvc := commitsservice.NewCommitService(githubSvc, commitRepo, logger, repositorySvc, githubClient)
+	commitSvc := commitsservice.NewCommitService(githubSvc, commitRepo, logger, repositorySvc)
 
 	return &Container{
 		config:            config,

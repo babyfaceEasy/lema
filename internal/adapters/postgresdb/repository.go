@@ -171,11 +171,11 @@ func (s *repositoryStore) CreateOrUpdate(ctx context.Context, repo domain.Reposi
 			if repo.CreatedAt.IsZero() {
 				repo.CreatedAt = now
 			}
-			/*
-				if repo.SinceDate.IsZero() {
-					repo.SinceDate = now
-				}
-			*/
+
+			if repo.SinceDate.IsZero() {
+				repo.SinceDate = now
+			}
+
 			insertQuery := `
 				INSERT INTO repositories 
 					(uid, name, owner_name, description, url, programming_language, forks_count, stars_count, watchers_count, open_issues_count, created_at, since_date, until_date)
