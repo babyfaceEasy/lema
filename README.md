@@ -94,20 +94,24 @@ The core logic of the application is primarily located in the `internal` and `in
 
 #### 1. Fetch Repository Details
 **Method**: GET  
-**URL**: `http://localhost:3000/v1/repositories/chromium?owner_name=chromium`  
+**URL**: `http://localhost:3000/v1/repositories/myresume?owner_name=babyfaceeasy`  
 **Sample Response**:
 ```json
 {
-    "name": "chromium",
-    "description": "The official GitHub mirror of the Chromium source",
-    "url": "https://api.github.com/repos/chromium/chromium",
-    "language": "C++",
-    "forks_count": 6805,
-    "stargazers_count": 18393,
-    "open_issues_count": 93,
-    "watchers_count": 18393,
-    "created_at": "2018-02-05T20:55:32Z",
-    "updated_at": "2024-08-04T03:16:04Z"
+    "status": true,
+    "data": {
+        "id": "6b94d021-b05c-4289-ace1-f434614e966a",
+        "name": "MyResume",
+        "owner_name": "babyfaceEasy",
+        "description": "Odegbaro Olakunle's Resume",
+        "url": "https://api.github.com/repos/babyfaceEasy/MyResume",
+        "language": "",
+        "forks_count": 0,
+        "stars_count": 3,
+        "watchers_count": 3,
+        "open_issues_count": 0
+    },
+    "message": "Repository Details"
 }
 ```
 
@@ -183,7 +187,8 @@ The core logic of the application is primarily located in the `internal` and `in
 #### 3. Reset Collection
 **Method**: POST  
 **URL**: `http://localhost:3000/v1/repositories/reset-collection`  
-**Sample Request**
+<br>
+**Sample Request**:
 ```json
 {
     "repo_name": "chromium",
@@ -233,7 +238,8 @@ The core logic of the application is primarily located in the `internal` and `in
 #### 5. Monitor a Repository
 **Method**: POST  
 **URL**: `http://localhost:300/api/repositories/monitor` 
-**Sample Request**
+<br>
+**Sample Request**:
 ```json
 {
     "repo_name": "chromium",

@@ -54,7 +54,7 @@ func (h Handler) GetRepositoryCommits(w http.ResponseWriter, r *http.Request) {
 
 	code, res := h.response(http.StatusOK, ResponseFormat{
 		Status:  true,
-		Message: "Commits stored and retrieved successfully",
+		Message: "Commits retrieved successfully",
 		Data:    pagination.PagedResponse{Pagination: pg, Data: storedCommits},
 	})
 	utils.SendResponse(w, code, res)
