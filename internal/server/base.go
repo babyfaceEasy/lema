@@ -25,13 +25,13 @@ func New(config *config.Config, logger *zap.Logger, store *store.Store) *ApiServ
 }
 
 func (s *ApiServer) Start(ctx context.Context, diContainer *container.Container) error {
-	// container
-	/*
-		diContainer := container.NewContainer(s.config, s.logger)
-		defer diContainer.Close()
-	*/
-
-	mux := routes.RegisterRoutes(s.config, s.logger, s.store, diContainer.GetCommitService(), diContainer.GetRepositoryService())
+	mux := routes.RegisterRoutes(
+		s.config, s.logger, 
+		s.store, 
+		diContainer.GetCommitService(), 
+		diContainer.GetRepositoryService(), 
+		diContainer.GetTaskQueue(),
+	)
 	server := &http.Server{
 		Addr:    net.JoinHostPort(s.config.GetApiServerHost(), s.config.GetApiServerPort()),
 		Handler: mux,

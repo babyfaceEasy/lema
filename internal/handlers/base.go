@@ -6,6 +6,7 @@ import (
 	"github.com/babyfaceeasy/lema/config"
 	"github.com/babyfaceeasy/lema/internal/domain"
 	"github.com/babyfaceeasy/lema/internal/messages"
+	"github.com/babyfaceeasy/lema/internal/queue"
 	"github.com/babyfaceeasy/lema/internal/store"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"go.uber.org/zap"
@@ -17,6 +18,7 @@ type Handler struct {
 	store             *store.Store
 	commitService     domain.CommitService
 	repositoryService domain.RepositoryService
+	taskQueue         queue.TaskQueue
 }
 
 func New(
@@ -25,9 +27,10 @@ func New(
 	store *store.Store,
 	commitService domain.CommitService,
 	repositoryService domain.RepositoryService,
+	taskQueue queue.TaskQueue,
 ) *Handler {
 	logger = logger.With(zap.String("package", "handlers"))
-	return &Handler{config: config, logger: logger, store: store, commitService: commitService, repositoryService: repositoryService}
+	return &Handler{config: config, logger: logger, store: store, commitService: commitService, repositoryService: repositoryService, taskQueue: taskQueue}
 }
 
 type ResponseFormat struct {
